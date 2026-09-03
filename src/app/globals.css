@@ -1,0 +1,210 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-void: #040407;
+  --color-dusk: #0c0710;
+  --color-panel: #120c12;
+  --color-crimson: #e0115f;
+  --color-neon: #ff1e56;
+  --color-ruby: #ff1e56;
+  --color-blood: #590d22;
+  --color-amber: #f5b942;
+  --color-emerald: #34d399;
+  --color-ink: #f4f1f6;
+  --color-muted: #8a8494;
+  --color-line: #241c24;
+  --color-terminal: #07060a;
+  --font-display: var(--font-space);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains);
+}
+
+:root {
+  color-scheme: dark;
+  --surface-glass: rgba(18, 12, 18, 0.65);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-glow: rgba(244, 63, 94, 0.4);
+  --specular: rgba(255, 255, 255, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  background: #040407;
+  color: var(--color-ink);
+}
+
+body {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  background: #040407;
+}
+
+::selection {
+  background: rgba(255, 30, 86, 0.35);
+  color: #fff;
+}
+
+.font-display {
+  font-family: var(--font-display), sans-serif;
+}
+
+.font-mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+.void-breath {
+  background: radial-gradient(circle 800px at 50% 20%, rgba(224, 17, 95, 0.12), transparent 80%);
+  animation: breath 9s ease-in-out infinite;
+  transform-origin: 50% 20%;
+}
+
+@keyframes breath {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+.glass {
+  background: var(--surface-glass);
+  backdrop-filter: blur(40px) saturate(1.35);
+  border: 1px solid var(--border-subtle);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 var(--specular);
+}
+
+.glass-glow {
+  border: 1px solid var(--border-glow);
+  box-shadow:
+    0 0 0 1px rgba(255, 30, 86, 0.08),
+    0 20px 50px rgba(89, 13, 34, 0.35),
+    inset 0 1px 0 var(--specular);
+}
+
+.hud-pill {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(24px) saturate(1.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ruby-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(180deg, #ff1e56 0%, #e0115f 52%, #590d22 140%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 8px 28px rgba(255, 30, 86, 0.28),
+    inset 0 1px 0 var(--specular);
+  transition: transform 140ms ease;
+}
+
+.ruby-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.28) 50%, transparent 65%);
+  transform: translateX(-130%);
+  animation: shimmer 2.6s ease-in-out infinite;
+}
+
+.ruby-btn:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.ruby-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.ruby-btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.ghost-btn {
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.03);
+  transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
+}
+
+.ghost-btn:hover:not(:disabled) {
+  background: rgba(255, 30, 86, 0.1);
+  border-color: var(--border-glow);
+}
+
+.ghost-btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 30, 86, 0.28) transparent;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-130%);
+  }
+  60%,
+  100% {
+    transform: translateX(130%);
+  }
+}
+
+@keyframes ping-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.85);
+    opacity: 0;
+  }
+}
+
+.ping-ring {
+  animation: ping-ring 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes jewel {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+.jewel-sheen {
+  background-image: linear-gradient(90deg, #ff1e56 0%, #fff 45%, #e0115f 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: jewel 2.8s linear infinite;
+}
+
+@keyframes ember {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+.ember-core {
+  animation: ember 1.7s ease-in-out infinite;
+}
