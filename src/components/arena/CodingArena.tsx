@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import confetti from "canvas-confetti";
 import { AnimatePresence, motion } from "framer-motion";
@@ -9,9 +9,12 @@ import { MapPinned, Play, RotateCcw, ShoppingBag } from "lucide-react";
 import { getStage, isUnlocked } from "@/content/curriculum";
 import { runCode } from "@/lib/api";
 import { playFail, playSuccess } from "@/lib/audio";
-import { rankTitle } from "@/lib/economy";
+import { isMilestone } from "@/lib/economy";
 import type { RunResponse } from "@/lib/types";
 import { useForge } from "@/components/providers/ForgeProvider";
+import { useMentor } from "@/components/mentor/MentorProvider";
+import { ForgeIdentity } from "@/components/hud/ForgeIdentity";
+import { HudGlow, useHudGlow } from "@/components/hud/HudGlow";
 import { ArenaTerminal } from "./ArenaTerminal";
 import { BriefingPanel } from "./BriefingPanel";
 
@@ -24,15 +27,15 @@ const spring = { type: "spring" as const, stiffness: 320, damping: 28 };
 
 export function CodingArena({ stageId }: { stageId: number }) {
   const router = useRouter();
-  const { player, setPlayer, persistDraft, setBazaarOpen } = useForge();
+  const { player, setPlayer, persistDraft, setBazaarOpen, bazaarOpen } = useForge();
+  const { speak } = useMentor();
   const stage = getStage(stageId);
   const [code, setCode] = useState(stage?.starterCode ?? "");
   const [result, setResult] = useState<RunResponse | null>(null);
   const [busy, setBusy] = useState(false);
   const [flash, setFlash] = useState<string | null>(null);
   const [hydratedId, setHydratedId] = useState<number | null>(null);
-  const hudRef = useRef<HTMLElement>(null);
-  const [spot, setSpot] = useState({ x: 220, y: 22 });
+  const hud = useHudGlow({ x: 220, y: 22 });
 
   if (player && stage && hydratedId !== stage.id) {
     setHydratedId(stage.id);
@@ -58,12 +61,19 @@ export function CodingArena({ stageId }: { stageId: number }) {
   const onRun = useCallback(async () => {
     if (!stage || busy) return;
     setBusy(true);
+    speak({ type: "run", stageId: stage.id });
     try {
       const payload = await runCode(stage.id, code);
       setResult(payload);
       if (payload.player) setPlayer(payload.player);
       if (payload.passed) {
         playSuccess();
+        speak({
+          type: "pass",
+          stageId: stage.id,
+          milestone: isMilestone(stage.id),
+          gems: payload.reward?.gems,
+        });
         void confetti({
           particleCount: payload.leveledUp ? 140 : 70,
           spread: 74,
@@ -77,6 +87,7 @@ export function CodingArena({ stageId }: { stageId: number }) {
         }
       } else {
         playFail();
+        speak({ type: "fail", stageId: stage.id, result: payload });
         setFlash("Assertions failed. Read the stack and the diffs, then forge again.");
       }
     } catch (error) {
@@ -84,13 +95,7 @@ export function CodingArena({ stageId }: { stageId: number }) {
     } finally {
       setBusy(false);
     }
-  }, [busy, code, setPlayer, stage]);
-
-  const moveHud = (event: MouseEvent<HTMLElement>) => {
-    const box = hudRef.current?.getBoundingClientRect();
-    if (!box) return;
-    setSpot({ x: event.clientX - box.left, y: event.clientY - box.top });
-  };
+  }, [busy, code, setPlayer, speak, stage]);
 
   if (!stage) {
     return (
@@ -107,16 +112,12 @@ export function CodingArena({ stageId }: { stageId: number }) {
   return (
     <div className="relative z-10 flex h-screen flex-col gap-3 overflow-hidden px-3 pb-3 pt-3">
       <header
-        ref={hudRef}
-        onMouseMove={moveHud}
+        ref={hud.ref}
+        onMouseMove={hud.onMouseMove}
+        onMouseLeave={hud.onMouseLeave}
         className="hud-pill relative mx-auto flex w-full max-w-[1440px] shrink-0 items-center gap-3 overflow-hidden rounded-full px-4 py-2"
       >
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background: `radial-gradient(240px circle at ${spot.x}px ${spot.y}px, rgba(255,30,86,0.16), transparent 55%)`,
-          }}
-        />
+        <HudGlow lit={hud.lit && !bazaarOpen} spot={hud.spot} />
         <motion.button
           type="button"
           whileTap={{ scale: 0.96 }}
@@ -141,16 +142,22 @@ export function CodingArena({ stageId }: { stageId: number }) {
 
         <div className="relative z-[1] min-w-0">
           <p className="truncate font-display text-lg leading-none tracking-tight">{stage.title}</p>
-          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
-            {player ? rankTitle(player.xp) : "Novice Scripter"} · {player?.gems ?? 0} 💎
+          <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted">
+            {player?.gems ?? 0} 💎 · Ctrl+Enter to run
           </p>
         </div>
+
+        {player && (
+          <div className="relative z-[1] ml-auto hidden sm:block">
+            <ForgeIdentity player={player} compact />
+          </div>
+        )}
 
         <motion.button
           type="button"
           whileTap={{ scale: 0.96 }}
           onClick={() => setBazaarOpen(true)}
-          className="ghost-btn relative z-[1] ml-auto flex items-center gap-2 rounded-full px-3 py-1.5 text-sm"
+          className={`ghost-btn relative z-[1] flex items-center gap-2 rounded-full px-3 py-1.5 text-sm ${player ? "" : "ml-auto"}`}
         >
           <ShoppingBag className="h-4 w-4 text-neon" />
           Bazaar

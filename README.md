@@ -11,6 +11,12 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). Requires `ruby` and `git` on PATH.
 
+## Sign-in
+
+Create a smith with a handle + passphrase — that ledger always starts at Stage 01. Enter the forge with the same pair to load **only** that smith. Files live under `ruby_journey/.rubyforge/smiths/`.
+
+Google is optional. Copy `.env.example` to `.env.local` if you want it.
+
 ## Layout
 
 - `/` — The Crimson World map

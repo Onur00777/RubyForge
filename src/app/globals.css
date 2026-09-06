@@ -208,3 +208,221 @@ body {
 .ember-core {
   animation: ember 1.7s ease-in-out infinite;
 }
+
+.ember-companion-perch {
+  animation: ember-bob 3.6s ease-in-out infinite;
+}
+
+@keyframes ember-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.ember-companion-portrait {
+  background: radial-gradient(circle at 32% 30%, #1c1016, #08070a 72%);
+  border: 1.5px solid rgba(255, 30, 86, 0.5);
+  backdrop-filter: blur(6px);
+  transition: box-shadow 200ms ease, border-color 200ms ease;
+}
+
+.ember-companion-portrait:hover {
+  border-color: rgba(255, 30, 86, 0.85);
+}
+
+.google-btn {
+  color: #1a1418;
+  background: #f4f1f6;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+  transition: transform 140ms ease, filter 140ms ease;
+}
+
+.google-btn:hover:not(:disabled) {
+  filter: brightness(1.04);
+}
+
+.google-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.google-btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+
+.way-overworld {
+  background:
+    radial-gradient(ellipse 90% 42% at 50% -8%, rgba(96, 15, 33, 0.42), transparent 58%),
+    radial-gradient(ellipse 50% 30% at 12% 18%, rgba(28, 4, 9, 0.55), transparent 50%),
+    radial-gradient(ellipse 50% 30% at 88% 28%, rgba(28, 4, 9, 0.4), transparent 50%),
+    #07040a;
+}
+
+.way-scene {
+  isolation: isolate;
+}
+
+.way-gpu {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
+.way-sign {
+  background: rgba(12, 6, 10, 0.72);
+  border: 1px solid rgba(89, 17, 36, 0.7);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
+}
+
+.way-mist-a {
+  animation: way-mist-a 28s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.way-mist-b {
+  animation: way-mist-b 34s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes way-mist-a {
+  from {
+    transform: translate3d(-3.5%, 0, 0);
+  }
+  to {
+    transform: translate3d(3.5%, 0, 0);
+  }
+}
+
+@keyframes way-mist-b {
+  from {
+    transform: translate3d(4%, 0, 0);
+  }
+  to {
+    transform: translate3d(-4%, 0, 0);
+  }
+}
+
+.way-raven {
+  animation: way-raven-fly 15s linear infinite;
+  will-change: transform;
+}
+
+.way-raven-b {
+  animation-duration: 19s;
+  animation-delay: -6s;
+}
+
+.way-raven-c {
+  animation-duration: 17s;
+  animation-delay: -11s;
+}
+
+@keyframes way-raven-fly {
+  0% {
+    transform: translate3d(-40px, 0, 0);
+  }
+  100% {
+    transform: translate3d(860px, 64px, 0);
+  }
+}
+
+.way-flame {
+  animation: way-flame 1.7s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes way-flame {
+  0%,
+  100% {
+    transform: scale(1) translate3d(0, 0, 0);
+    opacity: 0.88;
+  }
+  50% {
+    transform: scale(1.14) translate3d(0, -1px, 0);
+    opacity: 1;
+  }
+}
+
+.way-heat {
+  animation: way-heat 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes way-heat {
+  0% {
+    transform: translate3d(-50%, -50%, 0) scale(0.72);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate3d(-50%, -50%, 0) scale(1.7);
+    opacity: 0;
+  }
+}
+
+.way-smoke {
+  animation: way-smoke 4.8s ease-out infinite;
+  will-change: transform, opacity;
+}
+
+.way-smoke-b {
+  animation-delay: 1.6s;
+  animation-duration: 5.4s;
+}
+
+.way-smoke-c {
+  animation-delay: 3.1s;
+  animation-duration: 6.2s;
+}
+
+@keyframes way-smoke {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.55);
+    opacity: 0.28;
+  }
+  100% {
+    transform: translate3d(7px, -26px, 0) scale(1.45);
+    opacity: 0;
+  }
+}
+
+.way-firefly {
+  box-shadow: 0 0 8px currentColor;
+  animation: way-firefly 4.6s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes way-firefly {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.2;
+  }
+  45% {
+    transform: translate3d(7px, -10px, 0);
+    opacity: 0.8;
+  }
+  70% {
+    transform: translate3d(-5px, -4px, 0);
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .way-mist-a,
+  .way-mist-b,
+  .way-raven,
+  .way-flame,
+  .way-heat,
+  .way-smoke,
+  .way-smoke-c,
+  .way-firefly {
+    animation: none;
+  }
+}

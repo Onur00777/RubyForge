@@ -48,6 +48,15 @@ export interface PlayerState {
   autoCommits: number;
   remoteUrl: string | null;
   createdAt: string;
+  cosmeticsOwned: string[];
+  equippedNickname: string | null;
+  equippedBanner: string | null;
+  equippedAvatar: string | null;
+  accountId: string;
+  email: string | null;
+  picture: string | null;
+  handle: string | null;
+  passHash?: string | null;
 }
 
 export interface SystemStatus {
@@ -75,4 +84,5 @@ export interface RunResponse {
   error?: string;
 }
 
-export type MarketItem = "hint" | "oracle" | "push";
+export type UtilityItem = "hint" | "oracle" | "push";
+export type MarketItem = UtilityItem | string;

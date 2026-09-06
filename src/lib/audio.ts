@@ -44,3 +44,18 @@ export function playSuccess() {
 export function playFail() {
   tone(196, 0.16, 0.05, "sawtooth");
 }
+
+export function playMentor(mood: "idle" | "teach" | "cheer" | "warn" = "idle") {
+  if (mood === "cheer") {
+    tone(523, 0.06, 0.03);
+    setTimeout(() => tone(784, 0.09, 0.028), 70);
+    return;
+  }
+  if (mood === "warn") {
+    tone(247, 0.08, 0.03, "triangle");
+    setTimeout(() => tone(196, 0.1, 0.025, "triangle"), 90);
+    return;
+  }
+  tone(330, 0.05, 0.025);
+  setTimeout(() => tone(392, 0.07, 0.022), 60);
+}

@@ -1,92 +1,57 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { writeFile } from "node:fs/promises";
 import path from "node:path";
-import { STARTING_GEMS } from "./economy";
-import {
-  engineDir,
-  forgeDir,
-  journeyRoot,
-  progressPath,
-  runDir,
-  stageFilePath,
-  stagesDir,
-  workspaceDir,
-} from "./paths";
-import type { PlayerState, StageDef } from "./types";
 import { getStage } from "@/content/curriculum";
+import {
+  defaultPlayer,
+  ensureJourneyLayout,
+  isHandleTaken,
+  mergePlayer,
+  publicPlayer,
+  readSmith,
+  writeSmith,
+} from "./ledger";
+import { journeyRoot, stageFilePath } from "./paths";
+import { requireSmith } from "./session";
+import type { PlayerState, StageDef } from "./types";
 
-let lock: Promise<unknown> = Promise.resolve();
+export { defaultPlayer, ensureJourneyLayout, isHandleTaken };
 
-function withLock<T>(fn: () => Promise<T>): Promise<T> {
-  const run = lock.then(fn, fn);
-  lock = run.then(
-    () => undefined,
-    () => undefined,
+const locks = new Map<string, Promise<unknown>>();
+
+function withLock<T>(key: string, fn: () => Promise<T>): Promise<T> {
+  const prev = locks.get(key) ?? Promise.resolve();
+  const run = prev.then(fn, fn);
+  locks.set(
+    key,
+    run.then(
+      () => undefined,
+      () => undefined,
+    ),
   );
   return run;
 }
 
-export function defaultPlayer(): PlayerState {
-  const now = new Date().toISOString();
-  return {
-    gems: STARTING_GEMS,
-    xp: 0,
-    streak: 0,
-    lastCompletedAt: null,
-    completedSteps: [],
-    currentStepId: 1,
-    drafts: {},
-    hintTiers: {},
-    solutionsUnlocked: [],
-    reviews: {},
-    gitPushTokens: 0,
-    autoCommits: 0,
-    remoteUrl: null,
-    createdAt: now,
-  };
-}
-
-export async function ensureJourneyLayout(): Promise<void> {
-  await mkdir(stagesDir(), { recursive: true });
-  await mkdir(workspaceDir(), { recursive: true });
-  await mkdir(engineDir(), { recursive: true });
-  await mkdir(forgeDir(), { recursive: true });
-  await mkdir(runDir(), { recursive: true });
-  await writeFile(path.join(journeyRoot(), ".gitignore"), ".rubyforge/\nworkspace/\n", "utf8");
-}
-
-async function readPlayer(): Promise<PlayerState> {
-  await ensureJourneyLayout();
-  try {
-    const raw = await readFile(progressPath(), "utf8");
-    const parsed = JSON.parse(raw) as PlayerState;
-    return { ...defaultPlayer(), ...parsed, drafts: parsed.drafts ?? {} };
-  } catch {
-    const player = defaultPlayer();
-    await writeFile(progressPath(), JSON.stringify(player, null, 2), "utf8");
-    return player;
-  }
-}
-
 export async function loadPlayer(): Promise<PlayerState> {
-  return withLock(readPlayer);
+  const smith = await requireSmith();
+  return withLock(smith.id, async () => publicPlayer(await readSmith(smith)));
 }
 
 export async function savePlayer(player: PlayerState): Promise<void> {
-  await withLock(async () => {
-    await ensureJourneyLayout();
-    await writeFile(progressPath(), JSON.stringify(player, null, 2), "utf8");
+  const smith = await requireSmith();
+  await withLock(smith.id, async () => {
+    await writeSmith(smith, player);
   });
 }
 
 export async function updatePlayer(
   mutator: (player: PlayerState) => PlayerState | Promise<PlayerState>,
 ): Promise<PlayerState> {
-  return withLock(async () => {
-    const current = await readPlayer();
+  const smith = await requireSmith();
+  return withLock(smith.id, async () => {
+    const current = await readSmith(smith);
     const next = await mutator(current);
-    await ensureJourneyLayout();
-    await writeFile(progressPath(), JSON.stringify(next, null, 2), "utf8");
-    return next;
+    await writeSmith(smith, next);
+    return publicPlayer(mergePlayer(next, smith));
   });
 }
 
@@ -111,11 +76,13 @@ export async function rewritePortfolioReadme(player: PlayerState): Promise<void>
     .filter(Boolean)
     .join("\n");
 
+  const smithLine = player.handle ? `- Smith: **${player.handle}**\n` : "";
+
   const body = `# Crimson Path Engine
 
 Local Ruby portfolio forged in RubyForge: The Crimson Path.
 
-- Stages complete: **${completed.length} / 30**
+${smithLine}- Stages complete: **${completed.length} / 30**
 - XP: **${player.xp}**
 - Ruby Gems: **${player.gems}**
 

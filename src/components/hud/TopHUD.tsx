@@ -1,39 +1,33 @@
 "use client";
 
-import { useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { Flame, Gem, ShoppingBag, Trophy } from "lucide-react";
+import type { ReactNode } from "react";
 import { rankTitle } from "@/lib/economy";
 import { useForge } from "@/components/providers/ForgeProvider";
+import { ForgeIdentity } from "./ForgeIdentity";
+import { HudGlow, useHudGlow } from "./HudGlow";
 
 export function TopHUD() {
-  const { player, setBazaarOpen } = useForge();
-  const ref = useRef<HTMLElement>(null);
-  const [spot, setSpot] = useState({ x: 180, y: 22 });
+  const { player, setBazaarOpen, bazaarOpen } = useForge();
+  const glow = useHudGlow();
 
   if (!player) return null;
 
-  const move = (event: MouseEvent<HTMLElement>) => {
-    const box = ref.current?.getBoundingClientRect();
-    if (!box) return;
-    setSpot({ x: event.clientX - box.left, y: event.clientY - box.top });
-  };
-
   return (
     <header
-      ref={ref}
-      onMouseMove={move}
+      ref={glow.ref}
+      onMouseMove={glow.onMouseMove}
+      onMouseLeave={glow.onMouseLeave}
       className="hud-pill sticky top-4 z-30 mx-auto flex w-[min(980px,calc(100%-1.5rem))] items-center gap-4 overflow-hidden rounded-full px-6 py-2.5"
     >
-      <div
-        className="pointer-events-none absolute inset-0 opacity-80"
-        style={{
-          background: `radial-gradient(220px circle at ${spot.x}px ${spot.y}px, rgba(255,30,86,0.16), transparent 55%)`,
-        }}
-      />
-      <div className="relative">
-        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.34em] text-neon">RubyForge</p>
-        <p className="font-display text-lg leading-none tracking-tight">The Crimson Path</p>
+      <HudGlow lit={glow.lit && !bazaarOpen} spot={glow.spot} />
+      <div className="relative flex min-w-0 items-center gap-3">
+        <ForgeIdentity player={player} compact />
+        <div className="hidden sm:block">
+          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.34em] text-neon">RubyForge</p>
+          <p className="font-display text-lg leading-none tracking-tight">The Crimson Path</p>
+        </div>
       </div>
 
       <div className="relative ml-auto flex items-center gap-2 sm:gap-3">

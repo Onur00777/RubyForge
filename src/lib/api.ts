@@ -9,6 +9,28 @@ async function parse<T>(response: Response): Promise<T> {
   return data;
 }
 
+export async function fetchAccount(): Promise<{
+  googleConfigured: boolean;
+  signedIn: boolean;
+  email?: string | null;
+  picture?: string | null;
+  handle?: string | null;
+  suggested?: string | null;
+}> {
+  const response = await fetch("/api/account", { cache: "no-store" });
+  return parse(response);
+}
+
+export async function saveHandle(handle: string): Promise<PlayerState> {
+  const response = await fetch("/api/account", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ handle }),
+  });
+  const data = await parse<{ player: PlayerState }>(response);
+  return data.player;
+}
+
 export async function fetchSystem(): Promise<SystemStatus & { player: PlayerState }> {
   const response = await fetch("/api/system", { cache: "no-store" });
   return parse(response);
@@ -36,7 +58,7 @@ export async function runCode(stepId: number, code: string): Promise<RunResponse
 export async function buyItem(
   item: MarketItem,
   stepId: number,
-  extra?: { code?: string; remoteUrl?: string },
+  extra?: { code?: string; remoteUrl?: string; action?: "buy" | "equip" },
 ): Promise<{
   player: PlayerState;
   hint?: string;

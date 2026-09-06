@@ -4,9 +4,9 @@ export const STARTING_GEMS = 18;
 export const XP_PER_LEVEL = 150;
 
 export const MARKET_PRICES = {
-  hint: 10,
-  oracle: 40,
-  push: 25,
+  hint: 16,
+  oracle: 60,
+  push: 40,
 } as const;
 
 export function levelFromXp(xp: number): number {

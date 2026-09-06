@@ -4,12 +4,16 @@ import { computeReward, isMilestone, levelFromXp, nextStreak } from "@/lib/econo
 import { gitCommit } from "@/lib/git-bridge";
 import { persistStageFile, rewritePortfolioReadme, updatePlayer } from "@/lib/player";
 import { executeStep } from "@/lib/ruby-runner";
+import { failResponse, getSmith, unauthorizedResponse } from "@/lib/session";
 import type { RunResponse } from "@/lib/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
+  const smith = await getSmith();
+  if (!smith) return unauthorizedResponse();
+
   try {
     const body = (await request.json()) as { stepId?: number; code?: string };
     const stepId = Number(body.stepId);
@@ -99,7 +103,6 @@ export async function POST(request: Request) {
     payload.player = player;
     return NextResponse.json(payload);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+    return failResponse(error, 500);
   }
 }

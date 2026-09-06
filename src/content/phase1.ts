@@ -9,14 +9,14 @@ export const PHASE_ONE: StageDef[] = [
     subtitle: "Core syntax · assignment",
     fileName: "stage_01_variables.rb",
     concept:
-      "Ruby does not declare variables with a keyword. The moment you assign a value, the name exists. Type travels with the value — you never lock it in.",
+      "A variable is a nickname for a value. In Ruby you skip `var` and skip types — write a name, `=`, and a value. That's it.",
     bullets: [
-      "Assignment (`=`) is not comparison (`==`).",
-      "Names use snake_case: `hero_name`, never `heroName`.",
-      "Classes resolve at runtime: `\"Ash\"` is a String, `1` is an Integer.",
+      "`=` saves a value. `==` asks if two things match.",
+      "Quotes make text. Numbers stay bare. `true` is a word, not `\"true\"`.",
+      "Ruby likes snake_case: `hero_name`, not `heroName`.",
     ],
-    lore: "The first spark in the forge is a name. Summon the hero; the iron comes later.",
-    task: "Bind three locals: the hero's name, their level, and whether the forge is ready.",
+    lore: "Every hero needs a name, a level, and a ready flag. You type them. Ruby remembers.",
+    task: "Fill the three blanks on the right. The checklist below has the exact values — type them yourself.",
     objectives: [
       '`hero_name` must equal `"Ash"`',
       "`hero_level` must be the Integer `1`",
@@ -36,7 +36,7 @@ __expect("hero_level == 1 (Integer)", defined?(hero_level) && hero_level == 1 &&
 __expect("forge_ready == true", defined?(forge_ready) && forge_ready == true, defined?(forge_ready) ? forge_ready.inspect : "missing")
 `,
     hints: [
-      "Three assignments are enough: `name = value`. Quotes make a String; bare `true` is a boolean.",
+      "Quotes around the name. No quotes around the level. Type the word `true`, not `\"true\"`.",
       '`hero_name = "Ash"` · `hero_level = 1` · `forge_ready = true`',
     ],
     solution: `hero_name = "Ash"
@@ -54,7 +54,7 @@ forge_ready = true
     subtitle: "Core syntax · text",
     fileName: "stage_02_strings.rb",
     concept:
-      "Double-quoted strings evaluate `#{...}` interpolation. Single-quoted strings stay literal. This is how a CLI engine stamps names into banners.",
+      "A banner is a template, not a frozen slogan. Double-quoted strings run a tiny program: `#{...}` is evaluated and spliced in at runtime. Single quotes are a photograph of the characters you typed — they will not stamp `forge_title` into the text. That is how a CLI engine writes names onto gates.",
     bullets: [
       '`"Crimson #{forge_title}"` embeds the variable at runtime.',
       "`+` concatenation works; interpolation is the idiomatic path.",

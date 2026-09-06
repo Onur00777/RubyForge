@@ -11,6 +11,7 @@ interface Props {
   active: boolean;
   hovered: boolean;
   tooltipSide: "left" | "right";
+  labelSide: "left" | "right" | "top-left" | "top-right";
   onHover: (id: number | null) => void;
   onLaunch: (id: number) => void;
 }
@@ -24,6 +25,7 @@ export function StageOrb({
   active,
   hovered,
   tooltipSide,
+  labelSide,
   onHover,
   onLaunch,
 }: Props) {
@@ -35,9 +37,26 @@ export function StageOrb({
     >
       {active && !hovered && (
         <motion.p
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="pointer-events-none absolute left-1/2 top-[-34px] z-10 -translate-x-1/2 whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.22em] text-neon"
+          initial={{
+            opacity: 0,
+            x: labelSide === "right" || labelSide === "top-right" ? -8 : 8,
+            y: labelSide.startsWith("top") ? 6 : 0,
+          }}
+          animate={{ opacity: 1, x: 0, y: 0 }}
+          transition={spring}
+          className={`pointer-events-none absolute z-30 whitespace-nowrap rounded-md border border-white/12 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.16em] text-ink ${
+            labelSide === "top-right"
+              ? "left-[46px] top-[-38px]"
+              : labelSide === "top-left"
+                ? "right-[46px] top-[-38px]"
+                : labelSide === "right"
+                  ? "left-[calc(100%+12px)] top-1/2 -translate-y-1/2"
+                  : "right-[calc(100%+12px)] top-1/2 -translate-y-1/2"
+          }`}
+          style={{
+            background: "#0c0710",
+            boxShadow: "0 0 0 4px #040407, 0 10px 24px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.08)",
+          }}
         >
           Ready to Deploy
         </motion.p>
@@ -47,23 +66,25 @@ export function StageOrb({
         type="button"
         disabled={!unlocked}
         onClick={() => unlocked && onLaunch(stage.id)}
-        whileHover={unlocked ? { scale: 1.15 } : undefined}
+        whileHover={unlocked ? { scale: 1.12 } : undefined}
         whileTap={unlocked ? { scale: 0.96 } : undefined}
         transition={spring}
         aria-label={`Stage ${String(stage.id).padStart(2, "0")} ${stage.title}`}
-        className="relative grid h-[72px] w-[72px] place-items-center"
+        className="relative grid h-[86px] w-[90px] place-items-center"
       >
+        <StonePlinth active={active} completed={completed} unlocked={unlocked} />
+
         {active && (
           <>
-            <span className="ping-ring absolute inset-[-10px] rounded-full border border-[#FF1E56]/50" />
-            <span className="absolute inset-[-4px] rounded-full border border-white/10" />
-            <span className="absolute inset-0 rounded-full border border-[#FF1E56]/40" />
+            <span className="way-heat pointer-events-none absolute left-1/2 top-[30px] h-16 w-16 rounded-full border border-[#FF1E56]/40" />
+            <span className="way-heat pointer-events-none absolute left-1/2 top-[30px] h-16 w-16 rounded-full border border-[#FF1E56]/25" style={{ animationDelay: "0.55s" }} />
+            <span className="ping-ring absolute left-1/2 top-[38px] h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#FF1E56]/50" />
           </>
         )}
 
         <motion.span
           layoutId={`mission-orb-${stage.id}`}
-          className={`relative grid h-16 w-16 place-items-center rounded-full ${
+          className={`relative z-[1] mb-3 grid h-16 w-16 place-items-center rounded-full ${
             completed ? "shadow-[0_0_28px_rgba(255,30,86,0.35)]" : active ? "ember-core" : ""
           }`}
           style={{
@@ -81,7 +102,7 @@ export function StageOrb({
                 ? "1px solid rgba(255,30,86,0.85)"
                 : "1px solid rgba(255,255,255,0.08)",
             boxShadow: active
-              ? "0 0 32px rgba(255,30,86,0.45), inset 0 1px 0 rgba(255,255,255,0.2)"
+              ? "0 0 32px rgba(255,30,86,0.45), 0 12px 18px rgba(255,30,86,0.22), inset 0 1px 0 rgba(255,255,255,0.2)"
               : completed
                 ? "inset 0 1px 0 rgba(255,255,255,0.25)"
                 : "inset 0 1px 0 rgba(255,255,255,0.06)",
@@ -122,8 +143,9 @@ export function StageOrb({
               </p>
               <p className="font-display mt-1 text-lg leading-tight tracking-tight">{stage.title}</p>
               <p className="mt-1 text-xs text-muted">{stage.subtitle}</p>
-              <p className="mt-2 font-mono text-sm uppercase tracking-wider text-amber">
-                +{stage.gems} 💎
+              <p className="mt-2 flex items-center gap-1.5 font-mono text-sm uppercase tracking-wider text-amber">
+                <RubyMark />
+                +{stage.gems}
               </p>
               <button
                 type="button"
@@ -139,6 +161,43 @@ export function StageOrb({
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+function StonePlinth({
+  active,
+  completed,
+  unlocked,
+}: {
+  active: boolean;
+  completed: boolean;
+  unlocked: boolean;
+}) {
+  const glow = active ? 0.7 : completed ? 0.4 : unlocked ? 0.18 : 0.08;
+  return (
+    <svg
+      viewBox="0 0 90 28"
+      className="pointer-events-none absolute bottom-0 left-1/2 w-[90px] -translate-x-1/2"
+      aria-hidden
+    >
+      <ellipse cx="45" cy="22" rx="43" ry="6" fill="#080308" opacity="0.8" />
+      <ellipse cx="45" cy="17" rx="41" ry="9" fill="#1a0c14" />
+      <path d="M7 17 L16 7 H74 L83 17 Z" fill="#2a1420" />
+      <path d="M16 7 L21 3 H69 L74 7 Z" fill="#4a2430" />
+      <path d="M21 3 H69 L66 1 H24 Z" fill="#6a3040" />
+      <path d="M20 12 H30 M38 10.5 H52 M60 12 H70" stroke="#FF5A79" strokeWidth="1.2" opacity={glow} />
+      <path d="M32 14 H58" stroke="#FF1E56" strokeWidth="0.8" opacity={glow * 0.75} />
+      {active && <ellipse cx="45" cy="16" rx="30" ry="7" fill="rgba(255,30,86,0.32)" />}
+    </svg>
+  );
+}
+
+function RubyMark() {
+  return (
+    <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden>
+      <path d="M6 1 L11 5 L6 11 L1 5 Z" fill="#FF1E56" />
+      <path d="M6 1 L8.5 5 L6 11 L3.5 5 Z" fill="#ff6b8a" />
+    </svg>
   );
 }
 

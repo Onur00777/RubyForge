@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { auth } from "@/auth";
+import { SessionRoot } from "@/components/providers/SessionRoot";
 import { ForgeProvider } from "@/components/providers/ForgeProvider";
+import { MentorProvider } from "@/components/mentor/MentorProvider";
+import { EmberCompanion } from "@/components/companion/EmberCompanion";
 import { CrimsonBazaar } from "@/components/bazaar/CrimsonBazaar";
+import { AuthGate } from "@/components/auth/AuthGate";
 import { Atmosphere } from "@/components/fx/Atmosphere";
 import { MotionRoot } from "@/components/fx/MotionRoot";
 import "./globals.css";
@@ -29,20 +34,29 @@ export const metadata: Metadata = {
   description: "A local Ruby learning game — overworld map, mission arena, and a real CLI runtime.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const session = await auth();
+
   return (
     <html
       lang="en"
       className={`${space.variable} ${inter.variable} ${jetbrains.variable} h-full antialiased`}
     >
       <body className="min-h-full overflow-x-hidden">
-        <ForgeProvider>
-          <Atmosphere />
-          <MotionRoot>
-            {children}
-            <CrimsonBazaar />
-          </MotionRoot>
-        </ForgeProvider>
+        <SessionRoot session={session}>
+          <ForgeProvider>
+            <MentorProvider>
+              <Atmosphere />
+              <MotionRoot>
+                <AuthGate>
+                  {children}
+                  <CrimsonBazaar />
+                  <EmberCompanion />
+                </AuthGate>
+              </MotionRoot>
+            </MentorProvider>
+          </ForgeProvider>
+        </SessionRoot>
       </body>
     </html>
   );
