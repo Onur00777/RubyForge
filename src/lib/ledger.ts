@@ -168,7 +168,7 @@ export async function createLocalSmith(
   const handle = normalizeHandle(rawHandle);
   const problem = handleError(handle) ?? passError(passphrase);
   if (problem) throw new Error(problem);
-  if (await isHandleTaken(handle)) throw new Error("That handle is already bound on this forge.");
+  if (await isHandleTaken(handle)) throw new Error("That username is already taken.");
 
   const id = `local_${randomUUID().replaceAll("-", "").slice(0, 24)}`;
   const smith: LedgerIdentity = { id, email: null, picture: null, name: handle };
@@ -187,10 +187,10 @@ export async function returnLocalSmith(
   const problem = handleError(handle) ?? passError(passphrase);
   if (problem) throw new Error(problem);
   const found = await findSmithByHandle(handle);
-  if (!found?.accountId) throw new Error("No smith with that handle on this forge.");
+  if (!found?.accountId) throw new Error("No account with that username.");
   if (found.passHash) {
     if (!verifyPassphrase(passphrase, found.passHash)) {
-      throw new Error("Handle and passphrase do not match.");
+      throw new Error("Username and password do not match.");
     }
   } else {
     found.passHash = hashPassphrase(passphrase);

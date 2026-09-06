@@ -38,7 +38,7 @@ export async function POST(request: Request) {
 
   const taken = await isHandleTaken(handle, smith.id);
   if (taken) {
-    return NextResponse.json({ error: "That handle is already bound on this forge." }, { status: 409 });
+    return NextResponse.json({ error: "That username is already taken." }, { status: 409 });
   }
 
   const player = await updatePlayer((current) => {

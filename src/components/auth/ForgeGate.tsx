@@ -10,18 +10,18 @@ import { HandleForm } from "./HandleForm";
 
 const OAUTH_ERRORS: Record<string, string> = {
   Configuration:
-    "Google login is not configured yet. You can still enter with a handle on this forge.",
-  AccessDenied: "Google denied the request. Try another account, or enter with your handle instead.",
+    "Google login is not set up yet. You can still create an account with a username.",
+  AccessDenied: "Google denied the request. Try another account, or sign in with your username.",
   OAuthCallback:
-    "Google came back empty. Check the redirect URI, or enter with a handle instead.",
+    "Google sign-in failed. Check the redirect URI, or use your username instead.",
   OAuthAccountNotLinked: "That Google account could not be linked. Sign in with the same account you used first.",
-  CredentialsSignin: "That handle could not be bound. Try a different name, or enter an existing one.",
+  CredentialsSignin: "Could not sign in with that username. Try a different name, or log in to an existing account.",
   Default: "Sign-in failed. Try again in a moment.",
 };
 
 export function ForgeGate({ googleConfigured }: { googleConfigured: boolean }) {
   return (
-    <Suspense fallback={<ForgeSplash label="LINKING THE FORGE" />}>
+    <Suspense fallback={<ForgeSplash label="Loading…" />}>
       <ForgeGateInner googleConfigured={googleConfigured} />
     </Suspense>
   );
@@ -49,8 +49,8 @@ function ForgeGateInner({ googleConfigured }: { googleConfigured: boolean }) {
     if (result?.error) {
       const message =
         mode === "create"
-          ? "That handle is taken or the passphrase is too short."
-          : "No smith with that handle, or the passphrase is wrong.";
+          ? "That username is taken, or the password is too short."
+          : "Wrong username or password.";
       if (mode === "create") setCreateError(message);
       else setReturnError(message);
       setBusy(null);
@@ -71,11 +71,10 @@ function ForgeGateInner({ googleConfigured }: { googleConfigured: boolean }) {
     <div className="relative z-10 mx-auto flex min-h-dvh w-[min(920px,100%)] flex-col px-4 py-10">
       <div className="my-auto">
         <div className="mb-10 text-center">
-          <p className="font-mono text-[11px] tracking-[0.42em] text-neon">THE CRIMSON PATH</p>
-          <h1 className="font-display mt-3 text-5xl font-bold tracking-tight sm:text-6xl">Bind a smith</h1>
+          <p className="font-mono text-[11px] tracking-[0.42em] text-neon">RUBYFORGE</p>
+          <h1 className="font-display mt-3 text-5xl font-bold tracking-tight sm:text-6xl">Welcome</h1>
           <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted">
-            Pick a handle and a passphrase. Create always starts at Stage 01. Enter loads only that
-            smith — never someone else's path.
+            Create an account to start from lesson 1, or log in to continue where you left off.
           </p>
         </div>
 
@@ -91,17 +90,16 @@ function ForgeGateInner({ googleConfigured }: { googleConfigured: boolean }) {
             animate={{ y: 0, opacity: 1 }}
             className="glass glass-glow rounded-[28px] p-6"
           >
-            <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-neon">New ledger</p>
-            <h2 className="font-display mt-2 text-2xl tracking-tight">Create a smith</h2>
+            <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-neon">New account</p>
+            <h2 className="font-display mt-2 text-2xl tracking-tight">Sign up</h2>
             <p className="mt-2 mb-5 text-sm leading-relaxed text-muted">
-              First strike. A new ledger from Stage 01 — gems, stages, and drafts belong only to this
-              handle.
+              Start from the first lesson. Your progress stays with this username.
             </p>
             <HandleForm
               kind="create"
               busy={busy === "create"}
               error={createError}
-              submitLabel="Strike the forge"
+              submitLabel="Create account"
               onSubmit={({ handle, passphrase }) => void enterLocal("create", handle, passphrase)}
             />
             {googleConfigured && (
@@ -112,7 +110,7 @@ function ForgeGateInner({ googleConfigured }: { googleConfigured: boolean }) {
                 className="google-btn mt-3 flex w-full items-center justify-center gap-3 rounded-full px-4 py-3 text-sm font-medium"
               >
                 <GoogleMark className="h-5 w-5" />
-                {busy === "google-create" ? "Opening Google…" : "Or create with Google"}
+                {busy === "google-create" ? "Opening Google…" : "Or sign up with Google"}
               </button>
             )}
           </motion.section>
@@ -123,17 +121,17 @@ function ForgeGateInner({ googleConfigured }: { googleConfigured: boolean }) {
             transition={{ delay: 0.08 }}
             className="glass rounded-[28px] p-6"
           >
-            <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-muted">Existing ledger</p>
-            <h2 className="font-display mt-2 text-2xl tracking-tight">Enter the forge</h2>
+            <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-muted">Returning</p>
+            <h2 className="font-display mt-2 text-2xl tracking-tight">Log in</h2>
             <p className="mt-2 mb-5 text-sm leading-relaxed text-muted">
-              Same handle and passphrase. Only that smith's gems, stages, and bazaar kit.
+              Use your username and password to open your saved progress.
             </p>
             <HandleForm
               kind="return"
               autoFocus={false}
               busy={busy === "return"}
               error={returnError}
-              submitLabel="Enter the forge"
+              submitLabel="Log in"
               onSubmit={({ handle, passphrase }) => void enterLocal("return", handle, passphrase)}
             />
             {googleConfigured && (

@@ -21,7 +21,7 @@ export function HandleForge() {
       const next = await saveHandle(handle);
       setPlayer(next);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not bind that handle.");
+      setError(err instanceof Error ? err.message : "Could not save that username.");
     } finally {
       setBusy(false);
     }
@@ -30,18 +30,18 @@ export function HandleForge() {
   return (
     <div className="relative z-10 mx-auto flex min-h-dvh w-[min(440px,100%)] flex-col px-4 py-10">
       <div className="my-auto">
-        <p className="font-mono text-[11px] tracking-[0.42em] text-neon">NAME THE SMITH</p>
-        <h1 className="font-display mt-3 text-4xl font-bold tracking-tight">A name is a binding</h1>
+        <p className="font-mono text-[11px] tracking-[0.42em] text-neon">CHOOSE A USERNAME</p>
+        <h1 className="font-display mt-3 text-4xl font-bold tracking-tight">Pick a username</h1>
         <p className="mt-3 text-sm leading-relaxed text-muted">
-          This handle sits on the HUD. Bazaar colors can paint it later — the letters are yours now.
-          {session?.user?.email ? ` Bound to ${session.user.email}.` : ""}
+          This name appears on your profile. You can change it later.
+          {session?.user?.email ? ` Signed in as ${session.user.email}.` : ""}
         </p>
         <div className="glass glass-glow mt-8 rounded-[28px] p-6">
           <HandleForm
             initial={initial}
             busy={busy}
             error={error}
-            submitLabel="Enter the Crimson World"
+            submitLabel="Continue"
             onSubmit={({ handle }) => void bind(handle)}
           />
         </div>

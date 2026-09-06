@@ -43,20 +43,20 @@ export function HandleForm({
   return (
     <form onSubmit={submit} className="space-y-4">
       <label className="block">
-        <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-muted">Handle</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-muted">Username</span>
         <input
           autoFocus={autoFocus}
           value={value}
           maxLength={HANDLE_MAX}
           onChange={(event) => setValue(event.target.value)}
-          placeholder="Ash"
+          placeholder="yourname"
           autoComplete="username"
           className="mt-2 w-full rounded-2xl border border-white/10 bg-black/40 px-4 py-3 font-display text-lg tracking-tight outline-none transition focus:border-neon/50"
         />
       </label>
       {withPass && (
         <label className="block">
-          <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-muted">Passphrase</span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-muted">Password</span>
           <input
             type="password"
             value={passphrase}
@@ -70,7 +70,7 @@ export function HandleForm({
       )}
       {kind === "create" && (
         <label className="block">
-          <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-muted">Confirm</span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.28em] text-muted">Confirm password</span>
           <input
             type="password"
             value={confirm}
@@ -87,14 +87,14 @@ export function HandleForm({
         <span className="text-ink">{handle || "—"}</span>
       </div>
       {(error || (value.trim() && local) || mismatch) && (
-        <p className="text-sm text-amber">{error ?? local ?? "Passphrases do not match."}</p>
+        <p className="text-sm text-amber">{error ?? local ?? "Passwords do not match."}</p>
       )}
       <button
         type="submit"
         disabled={blocked}
         className="ruby-btn font-display w-full rounded-full px-5 py-3 text-sm tracking-wide"
       >
-        {busy ? "Binding…" : submitLabel}
+        {busy ? (kind === "create" ? "Creating…" : kind === "return" ? "Signing in…" : "Saving…") : submitLabel}
       </button>
     </form>
   );

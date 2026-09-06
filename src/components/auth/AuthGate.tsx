@@ -12,7 +12,7 @@ function AuthGateInner({ children }: { children: ReactNode }) {
   const { player, loading, error, googleConfigured } = useForge();
 
   if (status === "loading" || googleConfigured === null) {
-    return <ForgeSplash label="LINKING THE FORGE" />;
+    return <ForgeSplash label="Loading…" />;
   }
 
   if (status !== "authenticated") {
@@ -20,7 +20,7 @@ function AuthGateInner({ children }: { children: ReactNode }) {
   }
 
   if (loading && !player) {
-    return <ForgeSplash label="OPENING THE LEDGER" />;
+    return <ForgeSplash label="Loading your progress…" />;
   }
 
   if (error && !player) {
@@ -40,7 +40,7 @@ function AuthGateInner({ children }: { children: ReactNode }) {
 
 export function AuthGate({ children }: { children: ReactNode }) {
   return (
-    <Suspense fallback={<ForgeSplash label="LINKING THE FORGE" />}>
+    <Suspense fallback={<ForgeSplash label="Loading…" />}>
       <AuthGateInner>{children}</AuthGateInner>
     </Suspense>
   );

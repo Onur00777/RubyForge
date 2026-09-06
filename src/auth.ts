@@ -17,8 +17,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => ({
       id: "forge",
       name: "Forge",
       credentials: {
-        handle: { label: "Handle", type: "text" },
-        passphrase: { label: "Passphrase", type: "password" },
+        handle: { label: "Username", type: "text" },
+        passphrase: { label: "Password", type: "password" },
         mode: { label: "Mode", type: "text" },
       },
       async authorize(credentials) {

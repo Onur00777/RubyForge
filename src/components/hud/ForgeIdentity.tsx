@@ -84,7 +84,7 @@ export function ForgeIdentity({
       setPlayer(next);
       setRetitle(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not bind that handle.");
+      setError(err instanceof Error ? err.message : "Could not save that username.");
     } finally {
       setBusy(false);
     }
@@ -97,7 +97,7 @@ export function ForgeIdentity({
         onClick={() => setOpen((value) => !value)}
         className="flex min-w-0 items-center gap-2.5 rounded-full text-left"
         aria-expanded={open}
-        aria-label="Smith menu"
+        aria-label="Account menu"
       >
         {player.picture && !avatar ? (
           <img
@@ -160,7 +160,7 @@ export function ForgeIdentity({
                       initial={handle}
                       busy={busy}
                       error={error}
-                      submitLabel="Bind handle"
+                      submitLabel="Save username"
                       onSubmit={({ handle }) => void bind(handle)}
                     />
                   </div>
@@ -174,7 +174,7 @@ export function ForgeIdentity({
                       }}
                       className="ghost-btn rounded-full px-3 py-2 text-left text-xs"
                     >
-                      Change handle
+                      Change username
                     </button>
                     <button
                       type="button"

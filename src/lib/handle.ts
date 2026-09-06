@@ -33,6 +33,6 @@ export function handleError(raw: string): string | null {
   if (!HANDLE_PATTERN.test(handle)) {
     return "Start with a letter. Letters, numbers, spaces, _ and - only.";
   }
-  if (RESERVED.has(handle.toLowerCase())) return "That name is reserved by the forge.";
+  if (RESERVED.has(handle.toLowerCase())) return "That username is reserved.";
   return null;
 }
