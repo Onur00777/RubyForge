@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo } from "react";
+import { memo, useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   apexIndices,
   offsetFromNode,
@@ -22,14 +22,19 @@ interface Props {
   activeId: number;
 }
 
-export function TrailSvg({ path, nodes, width, height, frontier, activeId }: Props) {
+const STRIP_CSS = 560;
+const RASTER_DPR = 1.25;
+
+export const TrailSvg = memo(function TrailSvg({ path, nodes, width, height, frontier, activeId }: Props) {
   const uid = useId().replace(/:/g, "");
   const cobble = `${uid}-cobble`;
   const earth = `${uid}-earth`;
-  const shadow = `${uid}-shadow`;
-  const mist = `${uid}-mist`;
   const mistFill = `${uid}-mist-fill`;
   const pool = `${uid}-pool`;
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const stripsRef = useRef<HTMLDivElement>(null);
+  const [baked, setBaked] = useState(false);
 
   const sampled = useMemo(() => sampleTrail(nodes, 10), [nodes]);
   const length = useMemo(() => polylineLength(sampled), [sampled]);
@@ -39,14 +44,56 @@ export function TrailSvg({ path, nodes, width, height, frontier, activeId }: Pro
   const dashOffset = length * (1 - progress);
   const apexes = useMemo(() => apexIndices(nodes, width), [nodes, width]);
 
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    const svg = svgRef.current;
+    const host = stripsRef.current;
+    if (!wrap || !svg || !host) return;
+
+    let token = 0;
+    let timer = 0;
+
+    const bake = () => {
+      const my = ++token;
+      const cssWidth = wrap.clientWidth;
+      const cssHeight = wrap.clientHeight;
+      if (cssWidth < 16 || cssHeight < 16) return;
+      void rasterTrail(svg, cssWidth, cssHeight, width, height)
+        .then((canvases) => {
+          if (my !== token) return;
+          host.replaceChildren(...canvases);
+          setBaked(true);
+        })
+        .catch(() => {
+          if (my === token) setBaked(false);
+        });
+    };
+
+    const schedule = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(bake, 40);
+    };
+
+    const ro = new ResizeObserver(schedule);
+    ro.observe(wrap);
+    schedule();
+    return () => {
+      token += 1;
+      window.clearTimeout(timer);
+      ro.disconnect();
+    };
+  }, [path, frontier, activeId, width, height, nodes]);
+
   return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
-      preserveAspectRatio="xMidYMin meet"
-      className="absolute inset-0 h-full w-full"
-      role="img"
-      aria-label="Crimson cobblestone way"
-    >
+    <div ref={wrapRef} className="absolute inset-0 bg-[#0c060a]" role="img" aria-label="Crimson cobblestone way">
+      <div ref={stripsRef} className="absolute inset-0 overflow-hidden" aria-hidden />
+      <svg
+        ref={svgRef}
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="xMidYMin meet"
+        className={baked ? "hidden" : "absolute inset-0 h-full w-full"}
+        aria-hidden={baked}
+      >
       <defs>
         <pattern id={cobble} width="56" height="36" patternUnits="userSpaceOnUse">
           <rect width="56" height="36" fill="#1a0c14" />
@@ -65,15 +112,6 @@ export function TrailSvg({ path, nodes, width, height, frontier, activeId }: Pro
           <ellipse cx="62" cy="48" rx="20" ry="13" fill="#12070c" opacity="0.5" />
           <ellipse cx="40" cy="78" rx="18" ry="10" fill="#1a0c12" opacity="0.35" />
         </pattern>
-
-        <filter id={shadow} x="-8%" y="-8%" width="116%" height="116%">
-          <feGaussianBlur stdDeviation="4" />
-        </filter>
-
-        <filter id={mist} x="-20%" y="-20%" width="140%" height="140%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.018 0.04" numOctaves="2" seed="2" result="noise" />
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="22" />
-        </filter>
 
         <radialGradient id={pool} cx="50%" cy="50%" r="50%">
           <stop offset="0%" stopColor="rgba(255,100,50,0.28)" />
@@ -96,11 +134,19 @@ export function TrailSvg({ path, nodes, width, height, frontier, activeId }: Pro
       <path
         d={path}
         fill="none"
+        stroke="#070309"
+        strokeWidth="96"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity="0.7"
+      />
+      <path
+        d={path}
+        fill="none"
         stroke="#0a040b"
         strokeWidth="84"
         strokeLinecap="round"
         strokeLinejoin="round"
-        filter={`url(#${shadow})`}
         opacity="0.9"
       />
 
@@ -180,10 +226,7 @@ export function TrailSvg({ path, nodes, width, height, frontier, activeId }: Pro
         strokeDasharray={length || 1}
         strokeDashoffset={dashOffset}
         opacity="0.7"
-        style={{
-          filter: "drop-shadow(0 0 10px rgba(255,30,86,0.65))",
-          transition: "stroke-dashoffset 900ms cubic-bezier(0.22, 1, 0.36, 1)",
-        }}
+        style={{ transition: "stroke-dashoffset 900ms cubic-bezier(0.22, 1, 0.36, 1)" }}
       />
 
       {apexes.map((index) => (
@@ -205,22 +248,23 @@ export function TrailSvg({ path, nodes, width, height, frontier, activeId }: Pro
         />
       ))}
 
-      <MistLayers height={height} width={width} mist={mist} fill={mistFill} />
+      <MistLayers height={height} width={width} fill={mistFill} />
       <SkyWildlife width={width} />
-    </svg>
+      </svg>
+    </div>
   );
-}
+});
 
 function Lantern({ origin, lit, hot }: { origin: { x: number; y: number }; lit: boolean; hot: boolean }) {
   return (
-    <g transform={`translate(${origin.x.toFixed(1)} ${origin.y.toFixed(1)})`} className="way-gpu">
+    <g transform={`translate(${origin.x.toFixed(1)} ${origin.y.toFixed(1)})`}>
       <path d="M-1.4 -30 L1.4 -30 L1.8 14 L-1.8 14 Z" fill="#0c0c10" />
       <path d="M-6 14 L6 14 L4.5 19 L-4.5 19 Z" fill="#16161c" />
       <path d="M-5 19 L5 19 L3.5 22 L-3.5 22 Z" fill="#0a0a0e" />
       <path d="M0 -26 C14 -27 16 -18 9 -12" fill="none" stroke="#1c1c24" strokeWidth="1.7" />
       <path d="M4.5 -15 L15.5 -15 L14.2 -3.5 L5.6 -3.5 Z" fill="#0b0b10" stroke="#2a2a34" strokeWidth="0.7" />
       <path d="M7 -15 L7 -3.5 M12.5 -15 L12.5 -3.5" stroke="#2a2a34" strokeWidth="0.5" />
-      <g className={lit ? "way-flame" : undefined} style={{ transformBox: "fill-box", transformOrigin: "10px -9px" }}>
+      <g>
         <ellipse cx="10" cy="-9.2" rx={hot ? 4.2 : 3.1} ry={hot ? 5.4 : 4.2} fill="#ffb347" opacity={lit ? 0.95 : 0.2} />
         <ellipse cx="10" cy="-10.4" rx="1.5" ry="2.3" fill="#fff4c8" opacity={lit ? 1 : 0.1} />
       </g>
@@ -241,7 +285,7 @@ function PlanterCluster({
 }) {
   const tilt = (seedUnit(seed) - 0.5) * 12;
   return (
-    <g transform={`translate(${origin.x.toFixed(1)} ${origin.y.toFixed(1)}) rotate(${tilt.toFixed(1)})`} className="way-gpu">
+    <g transform={`translate(${origin.x.toFixed(1)} ${origin.y.toFixed(1)}) rotate(${tilt.toFixed(1)})`}>
       <path
         d={`M${(curb.x - origin.x).toFixed(1)} ${(curb.y - origin.y).toFixed(1)} Q 8 -6 2 -18 T 10 -32`}
         fill="none"
@@ -270,32 +314,21 @@ function PlanterCluster({
 function MistLayers({
   width,
   height,
-  mist,
   fill,
 }: {
   width: number;
   height: number;
-  mist: string;
   fill: string;
 }) {
-  const tile = `${fill}-tile`;
   return (
     <g pointerEvents="none">
       <defs>
         <linearGradient id={fill} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="rgba(90,20,40,0.2)" />
-          <stop offset="100%" stopColor="rgba(40,10,22,0.05)" />
+          <stop offset="0%" stopColor="rgba(90,20,40,0.16)" />
+          <stop offset="100%" stopColor="rgba(40,10,22,0.04)" />
         </linearGradient>
-        <pattern id={tile} width="240" height="160" patternUnits="userSpaceOnUse">
-          <ellipse cx="120" cy="80" rx="108" ry="46" fill={`url(#${fill})`} filter={`url(#${mist})`} />
-        </pattern>
       </defs>
-      <g className="way-mist-a way-gpu">
-        <rect x={-80} width={width + 160} height={height} fill={`url(#${tile})`} opacity="0.7" />
-      </g>
-      <g className="way-mist-b way-gpu">
-        <rect x={-80} width={width + 160} height={height} fill={`url(#${tile})`} opacity="0.4" />
-      </g>
+      <rect x={-40} y={0} width={width + 80} height={height} fill={`url(#${fill})`} opacity="0.35" />
     </g>
   );
 }
@@ -305,15 +338,86 @@ function SkyWildlife({ width }: { width: number }) {
     "M0 0 C6 -3 12 -2 18 1 C12 2 9 3 7 1 C5 7 2 4 0 0 Z";
   return (
     <g pointerEvents="none" fill="#0a040b" opacity="0.55">
-      <g className="way-raven way-gpu">
-        <path d={bird} transform="translate(40 70) scale(1.6)" />
-      </g>
-      <g className="way-raven way-raven-b way-gpu">
-        <path d={bird} transform={`translate(${width * 0.12} 210) scale(1.15)`} />
-      </g>
-      <g className="way-raven way-raven-c way-gpu">
-        <path d={bird} transform="translate(90 1480) scale(1.35)" />
-      </g>
+      <path d={bird} transform="translate(40 70) scale(1.6)" />
+      <path d={bird} transform={`translate(${width * 0.12} 210) scale(1.15)`} />
+      <path d={bird} transform="translate(90 1480) scale(1.35)" />
     </g>
   );
+}
+
+async function rasterTrail(
+  svg: SVGSVGElement,
+  cssWidth: number,
+  cssHeight: number,
+  vbWidth: number,
+  vbHeight: number,
+) {
+  const dpr = Math.min(window.devicePixelRatio || 1, RASTER_DPR);
+  const strips: Promise<HTMLCanvasElement>[] = [];
+  for (let top = 0; top < cssHeight; top += STRIP_CSS) {
+    const slice = Math.min(STRIP_CSS, cssHeight - top);
+    strips.push(rasterStrip(svg, cssWidth, cssHeight, vbWidth, vbHeight, top, slice, dpr));
+  }
+  return Promise.all(strips);
+}
+
+async function rasterStrip(
+  svg: SVGSVGElement,
+  cssWidth: number,
+  cssHeight: number,
+  vbWidth: number,
+  vbHeight: number,
+  top: number,
+  slice: number,
+  dpr: number,
+) {
+  const pad = 2;
+  const cssY0 = Math.max(0, top - pad);
+  const cssY1 = Math.min(cssHeight, top + slice + pad);
+  const cssH = cssY1 - cssY0;
+  const vbY = (cssY0 / cssHeight) * vbHeight;
+  const vbH = (cssH / cssHeight) * vbHeight;
+
+  const clone = svg.cloneNode(true) as SVGSVGElement;
+  clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  clone.setAttribute("viewBox", `0 ${vbY} ${vbWidth} ${vbH}`);
+  clone.setAttribute("width", String(Math.round(cssWidth)));
+  clone.setAttribute("height", String(Math.round(cssH)));
+  clone.setAttribute("preserveAspectRatio", "none");
+  clone.removeAttribute("class");
+  clone.removeAttribute("aria-hidden");
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>${new XMLSerializer().serializeToString(clone)}`;
+  const blob = new Blob([xml], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  try {
+    const img = new Image();
+    img.decoding = "async";
+    img.src = url;
+    if (typeof img.decode === "function") {
+      await img.decode();
+    } else {
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error("trail raster"));
+      });
+    }
+    if (!img.naturalWidth || !img.naturalHeight) {
+      throw new Error("empty trail raster");
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(cssWidth * dpr));
+    canvas.height = Math.max(1, Math.round(cssH * dpr));
+    canvas.style.cssText = `position:absolute;left:0;top:${cssY0}px;width:100%;height:${cssH}px;display:block;`;
+    const ctx = canvas.getContext("2d", { alpha: false });
+    if (ctx) {
+      ctx.fillStyle = "#0c060a";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    }
+    return canvas;
+  } finally {
+    URL.revokeObjectURL(url);
+  }
 }

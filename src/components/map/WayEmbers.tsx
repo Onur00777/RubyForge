@@ -45,33 +45,32 @@ function hexAlpha(hex: string, alpha: number) {
 }
 
 function countFor(width: number, height: number) {
-  return Math.round(Math.min(110, Math.max(82, (width * height) / 11000)));
+  return Math.round(Math.min(14, Math.max(8, (width * height) / 160000)));
 }
 
 function scatter(width: number, height: number): Ember[] {
   const total = countFor(width, height);
-  const cols = Math.max(6, Math.round(Math.sqrt(total * (width / Math.max(height, 1)))));
-  const rows = Math.max(5, Math.ceil(total / cols));
+  const cols = Math.max(3, Math.round(Math.sqrt(total * (width / Math.max(height, 1)))));
+  const rows = Math.max(3, Math.ceil(total / cols));
   const embers: Ember[] = [];
   for (let i = 0; i < total; i += 1) {
     const col = i % cols;
     const row = Math.floor(i / cols) % rows;
     const palette = pickPalette()!;
-    const large = Math.random() > 0.7;
-    const mid = !large && Math.random() > 0.55;
+    const large = Math.random() > 0.82;
     embers.push({
-      x: ((col + 0.18 + Math.random() * 0.64) / cols) * width,
-      y: ((row + 0.18 + Math.random() * 0.64) / rows) * height,
-      r: large ? 4.8 + Math.random() * 2.4 : mid ? 3.1 + Math.random() * 1.3 : 1.8 + Math.random() * 1.1,
+      x: ((col + 0.22 + Math.random() * 0.56) / cols) * width,
+      y: ((row + 0.22 + Math.random() * 0.56) / rows) * height,
+      r: large ? 1.7 + Math.random() * 0.4 : 1.1 + Math.random() * 0.35,
       glow: palette.glow,
       core: palette.core,
       phase: Math.random() * Math.PI * 2,
-      wander: 0.35 + Math.random() * 0.85,
-      breath: 0.45 + Math.random() * 1.4,
-      vx: (Math.random() - 0.5) * 10,
-      vy: (Math.random() - 0.5) * 7,
+      wander: 0.18 + Math.random() * 0.35,
+      breath: 0.35 + Math.random() * 0.7,
+      vx: (Math.random() - 0.5) * 3.2,
+      vy: (Math.random() - 0.5) * 2.2,
       heading: Math.random() * Math.PI * 2,
-      flash: Math.random() > 0.72,
+      flash: Math.random() > 0.78,
     });
   }
   return embers;
@@ -87,51 +86,42 @@ function blinkOf(ember: Ember, now: number) {
 }
 
 function drawFirefly(ctx: CanvasRenderingContext2D, ember: Ember, now: number, blink: number) {
-  if (blink < 0.04) return;
+  if (blink < 0.08) return;
   const { x, y, r } = ember;
-  const flap = 0.55 + 0.45 * Math.sin(now * 0.018 + ember.phase * 3);
+  const flap = 0.72 + 0.28 * Math.sin(now * 0.012 + ember.phase * 2.4);
 
   ctx.save();
-  ctx.globalCompositeOperation = "lighter";
-  const halo = ctx.createRadialGradient(x, y, 0, x, y, r * 6.5);
-  halo.addColorStop(0, hexAlpha(ember.core, 0.5));
-  halo.addColorStop(0.28, hexAlpha(ember.glow, 0.22));
-  halo.addColorStop(0.62, hexAlpha(ember.glow, 0.06));
+  const halo = ctx.createRadialGradient(x, y, 0, x, y, r * 3.4);
+  halo.addColorStop(0, hexAlpha(ember.core, 0.28));
+  halo.addColorStop(0.45, hexAlpha(ember.glow, 0.1));
   halo.addColorStop(1, hexAlpha(ember.glow, 0));
-  ctx.globalAlpha = blink * 0.8;
+  ctx.globalAlpha = blink * 0.55;
   ctx.fillStyle = halo;
   ctx.beginPath();
-  ctx.arc(x, y, r * 6.5, 0, Math.PI * 2);
+  ctx.arc(x, y, r * 3.4, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.translate(x, y);
   ctx.rotate(ember.heading);
 
-  ctx.globalAlpha = blink;
+  ctx.globalAlpha = 0.18 * blink * flap;
+  ctx.fillStyle = "rgba(255, 248, 230, 0.7)";
+  ctx.beginPath();
+  ctx.ellipse(-r * 1.05, -r * 0.08, r * 1.05, r * (0.22 + flap * 0.12), -0.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(r * 1.05, -r * 0.08, r * 1.05, r * (0.22 + flap * 0.12), 0.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.globalAlpha = blink * 0.72;
   ctx.fillStyle = ember.glow;
   ctx.beginPath();
-  ctx.ellipse(0, r * 0.55, r * 0.95, r * 1.25, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, r * 0.12, r * 0.55, r * 0.72, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.globalAlpha = Math.min(1, blink * 1.2);
+  ctx.globalAlpha = Math.min(0.9, blink * 0.95);
   ctx.fillStyle = ember.core;
   ctx.beginPath();
-  ctx.ellipse(0, r * 0.6, r * 0.45, r * 0.62, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.globalCompositeOperation = "source-over";
-  ctx.globalAlpha = 0.42 * blink * flap;
-  ctx.fillStyle = "rgba(255, 248, 230, 0.88)";
-  ctx.beginPath();
-  ctx.ellipse(-r * 2.6, -r * 0.2, r * 3.1, r * (0.7 + flap * 0.7), -0.72, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(r * 2.6, -r * 0.2, r * 3.1, r * (0.7 + flap * 0.7), 0.72, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.globalAlpha = 0.8;
-  ctx.fillStyle = "#2a1814";
-  ctx.beginPath();
-  ctx.ellipse(0, -r * 0.7, r * 0.5, r * 1.05, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, r * 0.14, r * 0.28, r * 0.36, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 }
@@ -179,8 +169,8 @@ export function WayEmbers() {
       for (const ember of embers) {
         if (moving) {
           ember.phase += ember.wander * dt;
-          const driftX = ember.vx + Math.sin(ember.phase) * 16 + Math.sin(ember.phase * 2.15) * 7;
-          const driftY = ember.vy + Math.cos(ember.phase * 0.71) * 11 + Math.sin(ember.phase * 1.37) * 5;
+          const driftX = ember.vx + Math.sin(ember.phase) * 6 + Math.sin(ember.phase * 1.7) * 2.4;
+          const driftY = ember.vy + Math.cos(ember.phase * 0.71) * 4.2 + Math.sin(ember.phase * 1.2) * 1.8;
           ember.x += driftX * dt;
           ember.y += driftY * dt;
           ember.heading = Math.atan2(driftY, driftX) + Math.PI / 2;
@@ -213,7 +203,7 @@ export function WayEmbers() {
   }, []);
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-[12] overflow-hidden">
+    <div className="pointer-events-none fixed inset-0 z-[1] overflow-hidden">
       <canvas ref={canvasRef} className="way-gpu h-full w-full" aria-hidden />
     </div>
   );

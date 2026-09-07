@@ -47,10 +47,10 @@ export function WorldMap() {
           style={{ background: banner.glow }}
         />
       )}
-      <TopHUD />
       <WayEmbers />
+      <TopHUD />
 
-      <section className="relative mx-auto mt-8 w-[min(720px,100%)] px-4 text-center">
+      <section className="relative z-[5] mx-auto mt-8 w-[min(720px,100%)] px-4 text-center">
         <RubyHero />
         <p className="font-mono text-[11px] tracking-[0.42em] text-neon">LOCAL RUBY RUNTIME</p>
         <h1 className="font-display mt-2 text-5xl font-bold tracking-tight sm:text-6xl">
@@ -63,7 +63,7 @@ export function WorldMap() {
         {loading && <p className="mt-3 font-mono text-xs tracking-widest text-muted">LINKING THE FORGE</p>}
       </section>
 
-      <div className="relative mx-auto mt-6 w-[min(840px,100%)] px-2">
+      <div className="relative z-[5] mx-auto mt-6 w-[min(840px,100%)] px-2">
         <div
           className="way-scene relative w-full"
           style={{ aspectRatio: `${MAP_WIDTH} / ${height}` }}

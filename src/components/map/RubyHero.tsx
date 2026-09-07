@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float } from "@react-three/drei";
 import type { Mesh } from "three";
@@ -43,13 +43,27 @@ function GemMesh() {
 }
 
 export function RubyHero() {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setVisible(Boolean(entry?.isIntersecting)),
+      { rootMargin: "120px", threshold: 0 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <div className="h-[220px] w-full">
+    <div ref={wrapRef} className="h-[220px] w-full">
       <Canvas
-        dpr={[1, 1.35]}
+        dpr={[1, 1.25]}
         camera={{ position: [0, 0.15, 4.2], fov: 32 }}
         gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
-        frameloop="always"
+        frameloop={visible ? "always" : "never"}
         style={{ background: "transparent" }}
       >
         <ambientLight intensity={0.42} />

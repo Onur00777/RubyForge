@@ -24,7 +24,7 @@ type PropSpec = {
   along?: number;
 };
 
-/** Hand-composed village — dense on outer bends, open on the straightaways. */
+/** Hand-composed town — clusters on bends, a few houses along quieter stretches. */
 const BUILDINGS: BuildingSpec[] = [
   { kind: "ruin", node: 0, outer: true, dist: 112, along: 36, scale: 1.02 },
   { kind: "spire", node: 1, outer: false, dist: 124, along: -52, scale: 1.1 },
@@ -36,8 +36,15 @@ const BUILDINGS: BuildingSpec[] = [
   { kind: "spire", node: 3, outer: true, dist: 118, along: -30, scale: 1.04 },
   { kind: "tavern", node: 3, outer: true, dist: 100, along: 2, scale: 1.14 },
   { kind: "cottage", node: 3, outer: true, dist: 112, along: 38, scale: 0.86 },
+  { kind: "cottage", node: 4, outer: false, dist: 98, along: 22, scale: 0.82 },
   { kind: "spire", node: 2, outer: true, dist: 214, along: -44, scale: 0.7, far: true },
   { kind: "tavern", node: 4, outer: false, dist: 276, along: 48, scale: 0.56, far: true },
+
+  { kind: "cottage", node: 5, outer: true, dist: 96, along: -18, scale: 0.9 },
+  { kind: "cottage", node: 6, outer: true, dist: 108, along: 24, scale: 0.76 },
+  { kind: "tavern", node: 6, outer: false, dist: 104, along: 6, scale: 1.08 },
+  { kind: "cottage", node: 8, outer: true, dist: 100, along: 12, scale: 0.84 },
+  { kind: "cottage", node: 7, outer: false, dist: 248, along: -36, scale: 0.58, far: true },
 
   { kind: "tavern", node: 10, outer: true, dist: 102, along: 2, scale: 1.12 },
   { kind: "cottage", node: 10, outer: true, dist: 114, along: -42, scale: 0.9 },
@@ -45,13 +52,23 @@ const BUILDINGS: BuildingSpec[] = [
   { kind: "spire", node: 10, outer: false, dist: 268, along: 14, scale: 1.18, far: true },
   { kind: "cottage", node: 9, outer: false, dist: 306, along: -58, scale: 0.68, far: true },
 
+  { kind: "cottage", node: 12, outer: true, dist: 98, along: 18, scale: 0.88 },
+  { kind: "cottage", node: 13, outer: true, dist: 110, along: -26, scale: 1.06 },
+  { kind: "tavern", node: 14, outer: false, dist: 102, along: 10, scale: 0.96 },
+  { kind: "cottage", node: 15, outer: true, dist: 94, along: 8, scale: 0.72 },
+  { kind: "spire", node: 13, outer: true, dist: 236, along: 40, scale: 0.62, far: true },
+
+  { kind: "cottage", node: 16, outer: true, dist: 108, along: -52, scale: 0.84 },
   { kind: "spire", node: 17, outer: true, dist: 108, along: -24, scale: 1.08 },
   { kind: "tavern", node: 17, outer: true, dist: 100, along: 28, scale: 0.94 },
-  { kind: "cottage", node: 16, outer: true, dist: 108, along: -52, scale: 0.84 },
   { kind: "ruin", node: 18, outer: false, dist: 240, along: 10, scale: 0.78, far: true },
   { kind: "spire", node: 17, outer: false, dist: 292, along: -64, scale: 1.06, far: true },
 
+  { kind: "cottage", node: 19, outer: true, dist: 96, along: -12, scale: 0.8 },
+  { kind: "cottage", node: 20, outer: true, dist: 108, along: 28, scale: 1.1 },
   { kind: "ruin", node: 21, outer: false, dist: 168, along: 6, scale: 1.02 },
+  { kind: "cottage", node: 22, outer: true, dist: 100, along: -20, scale: 0.76 },
+  { kind: "tavern", node: 20, outer: false, dist: 258, along: -44, scale: 0.54, far: true },
 
   { kind: "cottage", node: 24, outer: true, dist: 100, along: -12, scale: 1.15 },
   { kind: "tavern", node: 24, outer: true, dist: 106, along: 40, scale: 0.88 },
@@ -59,8 +76,12 @@ const BUILDINGS: BuildingSpec[] = [
   { kind: "tavern", node: 24, outer: false, dist: 278, along: 22, scale: 0.6, far: true },
   { kind: "spire", node: 25, outer: false, dist: 314, along: -40, scale: 0.98, far: true },
 
+  { kind: "cottage", node: 26, outer: true, dist: 96, along: 10, scale: 0.9 },
+  { kind: "cottage", node: 27, outer: false, dist: 104, along: -24, scale: 0.74 },
   { kind: "spire", node: 28, outer: true, dist: 168, along: -14, scale: 1.16 },
+  { kind: "cottage", node: 28, outer: false, dist: 100, along: 32, scale: 0.8 },
   { kind: "ruin", node: 29, outer: false, dist: 158, along: 32, scale: 0.96 },
+  { kind: "cottage", node: 26, outer: true, dist: 242, along: -38, scale: 0.56, far: true },
 ];
 
 const PROPS: PropSpec[] = [
@@ -74,21 +95,28 @@ const PROPS: PropSpec[] = [
 
   { kind: "barrels", node: 3, outer: true, dist: 64, along: 16 },
   { kind: "crate", node: 3, outer: true, dist: 68, along: -20 },
+  { kind: "wood", node: 5, outer: true, dist: 62, along: 8 },
+  { kind: "crate", node: 8, outer: true, dist: 60, along: -14 },
 
   { kind: "well", node: 13, outer: false, dist: 76, along: -8 },
   { kind: "wood", node: 14, outer: true, dist: 60, along: 16 },
   { kind: "barrels", node: 14, outer: false, dist: 66, along: 20 },
+  { kind: "crate", node: 12, outer: true, dist: 58, along: 10 },
+  { kind: "wood", node: 15, outer: true, dist: 56, along: -8 },
 
   { kind: "barrels", node: 10, outer: true, dist: 62, along: 14 },
   { kind: "wood", node: 11, outer: true, dist: 60, along: -6 },
 
   { kind: "crate", node: 17, outer: true, dist: 66, along: 6 },
   { kind: "barrels", node: 17, outer: true, dist: 62, along: 24 },
+  { kind: "wood", node: 19, outer: true, dist: 58, along: 6 },
 
   { kind: "well", node: 20, outer: false, dist: 72, along: 4 },
   { kind: "wood", node: 21, outer: true, dist: 58, along: -12 },
+  { kind: "barrels", node: 22, outer: true, dist: 60, along: 14 },
 
   { kind: "barrels", node: 24, outer: true, dist: 64, along: 10 },
+  { kind: "crate", node: 26, outer: true, dist: 58, along: 8 },
   { kind: "crate", node: 27, outer: false, dist: 66, along: 8 },
   { kind: "well", node: 27, outer: true, dist: 80, along: -18 },
 ];
@@ -329,15 +357,9 @@ function Cottage({ far, pool, layer }: { far: boolean; pool: string; layer: Laye
       <rect x="10" y="-18" width="3.2" height="9" rx="1" fill="#34d399" opacity="0.7" />
       <rect x="15" y="-16" width="2.8" height="7" rx="1" fill="#fbbf24" opacity="0.75" />
       <rect x="19" y="-20" width="2.6" height="11" rx="1" fill="#fb7185" opacity="0.65" />
-      <g className="way-smoke way-gpu">
-        <ellipse cx="2" cy="-100" rx="8" ry="3.4" fill="rgba(214,196,204,0.24)" />
-      </g>
-      <g className="way-smoke way-smoke-b way-gpu">
-        <ellipse cx="8" cy="-108" rx="6" ry="2.6" fill="rgba(214,196,204,0.18)" />
-      </g>
-      <g className="way-smoke way-smoke-c way-gpu">
-        <ellipse cx="-2" cy="-104" rx="5" ry="2.2" fill="rgba(214,196,204,0.14)" />
-      </g>
+      <ellipse cx="2" cy="-100" rx="8" ry="3.4" fill="rgba(214,196,204,0.24)" />
+      <ellipse cx="8" cy="-108" rx="6" ry="2.6" fill="rgba(214,196,204,0.18)" />
+      <ellipse cx="-2" cy="-104" rx="5" ry="2.2" fill="rgba(214,196,204,0.14)" />
     </g>
   );
 }
@@ -370,7 +392,7 @@ function Ruin({ far, pool, layer }: { far: boolean; pool: string; layer: Layer }
       <ellipse cx="4" cy="1" rx="5" ry="2.6" fill="#b91c1c" opacity="0.5" />
       <path d="M26 -34 V-2" stroke="#16161c" strokeWidth="2" />
       <path d="M21 -32 H31 L29.5 -18 H22.5 Z" fill="#0b0b10" stroke="#2a2a34" strokeWidth="0.7" />
-      <ellipse cx="26" cy="-24" rx="3.2" ry="4.4" fill="#ffb347" className="way-flame" />
+      <ellipse cx="26" cy="-24" rx="3.2" ry="4.4" fill="#ffb347" />
     </g>
   );
 }
