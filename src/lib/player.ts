@@ -1,12 +1,12 @@
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { getStage } from "@/content/curriculum";
+import { presentSmith } from "./admin";
 import {
   defaultPlayer,
   ensureJourneyLayout,
   isHandleTaken,
   mergePlayer,
-  publicPlayer,
   readSmith,
   writeSmith,
 } from "./ledger";
@@ -33,7 +33,7 @@ function withLock<T>(key: string, fn: () => Promise<T>): Promise<T> {
 
 export async function loadPlayer(): Promise<PlayerState> {
   const smith = await requireSmith();
-  return withLock(smith.id, async () => publicPlayer(await readSmith(smith)));
+  return withLock(smith.id, async () => presentSmith(await readSmith(smith)));
 }
 
 export async function savePlayer(player: PlayerState): Promise<void> {
@@ -51,7 +51,7 @@ export async function updatePlayer(
     const current = await readSmith(smith);
     const next = await mutator(current);
     await writeSmith(smith, next);
-    return publicPlayer(mergePlayer(next, smith));
+    return presentSmith(mergePlayer(next, smith));
   });
 }
 

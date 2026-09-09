@@ -75,17 +75,13 @@ export function StageOrb({
         <StonePlinth active={active} completed={completed} unlocked={unlocked} />
 
         {active && (
-          <>
-            <span className="way-heat pointer-events-none absolute left-1/2 top-[30px] h-16 w-16 rounded-full border border-[#FF1E56]/40" />
-            <span className="way-heat pointer-events-none absolute left-1/2 top-[30px] h-16 w-16 rounded-full border border-[#FF1E56]/25" style={{ animationDelay: "0.55s" }} />
-            <span className="ping-ring absolute left-1/2 top-[38px] h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#FF1E56]/50" />
-          </>
+          <span className="way-heat pointer-events-none absolute left-1/2 top-[30px] h-14 w-14 rounded-full border border-[#FF1E56]/22" />
         )}
 
         <motion.span
           layoutId={`mission-orb-${stage.id}`}
           className={`relative z-[1] mb-3 grid h-16 w-16 place-items-center rounded-full ${
-            completed ? "shadow-[0_0_28px_rgba(255,30,86,0.35)]" : active ? "ember-core" : ""
+            completed ? "shadow-[0_0_16px_rgba(255,30,86,0.22)]" : active ? "ember-core" : ""
           }`}
           style={{
             opacity: unlocked ? 1 : 0.4,
@@ -102,7 +98,7 @@ export function StageOrb({
                 ? "1px solid rgba(255,30,86,0.85)"
                 : "1px solid rgba(255,255,255,0.08)",
             boxShadow: active
-              ? "0 0 32px rgba(255,30,86,0.45), 0 12px 18px rgba(255,30,86,0.22), inset 0 1px 0 rgba(255,255,255,0.2)"
+              ? "0 0 18px rgba(255,30,86,0.28), inset 0 1px 0 rgba(255,255,255,0.2)"
               : completed
                 ? "inset 0 1px 0 rgba(255,255,255,0.25)"
                 : "inset 0 1px 0 rgba(255,255,255,0.06)",

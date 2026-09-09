@@ -48,6 +48,8 @@ export function defaultPlayer(): PlayerState {
     email: null,
     picture: null,
     handle: null,
+    onboardingComplete: false,
+    isAdmin: false,
   };
 }
 
@@ -67,7 +69,8 @@ function verifyPassphrase(passphrase: string, stored: string): boolean {
 }
 
 export function publicPlayer(player: PlayerState): PlayerState {
-  const { passHash: _omitted, ...rest } = player;
+  const { passHash, ...rest } = player;
+  void passHash;
   return rest;
 }
 
@@ -92,6 +95,11 @@ export function mergePlayer(parsed: Partial<PlayerState>, smith: LedgerIdentity)
     picture: smith.picture ?? parsed.picture ?? null,
     handle: parsed.handle ?? null,
     passHash: parsed.passHash ?? null,
+    onboardingComplete:
+      typeof parsed.onboardingComplete === "boolean"
+        ? parsed.onboardingComplete
+        : Boolean((parsed.completedSteps?.length ?? 0) > 0 || (parsed.xp ?? 0) > 0),
+    isAdmin: Boolean(parsed.isAdmin),
   };
 }
 
@@ -112,15 +120,49 @@ export async function readSmith(smith: LedgerIdentity): Promise<PlayerState> {
 export async function writeSmith(smith: LedgerIdentity, player: PlayerState): Promise<void> {
   await ensureJourneyLayout();
   let existingHash: string | null = null;
+  let existingAdmin = false;
   try {
     const raw = await readFile(smithPath(smith.id), "utf8");
-    existingHash = (JSON.parse(raw) as PlayerState).passHash ?? null;
+    const existing = JSON.parse(raw) as PlayerState;
+    existingHash = existing.passHash ?? null;
+    existingAdmin = Boolean(existing.isAdmin);
   } catch {
     existingHash = null;
+    existingAdmin = false;
   }
   const next = mergePlayer(player, smith);
   next.passHash = player.passHash || existingHash;
+  next.isAdmin = existingAdmin;
   await writeFile(smithPath(smith.id), JSON.stringify(next, null, 2), "utf8");
+}
+
+export async function listSmiths(): Promise<PlayerState[]> {
+  await ensureJourneyLayout();
+  let files: string[] = [];
+  try {
+    files = await readdir(smithsDir());
+  } catch {
+    return [];
+  }
+  const players: PlayerState[] = [];
+  for (const file of files.sort()) {
+    if (!file.endsWith(".json")) continue;
+    const id = file.slice(0, -5);
+    try {
+      const parsed = JSON.parse(await readFile(path.join(smithsDir(), file), "utf8")) as Partial<PlayerState>;
+      players.push(
+        mergePlayer(parsed, {
+          id: parsed.accountId || id,
+          email: parsed.email ?? null,
+          picture: parsed.picture ?? null,
+          name: parsed.handle ?? null,
+        }),
+      );
+    } catch {
+      // skip a corrupt smith file
+    }
+  }
+  return players;
 }
 
 export async function isHandleTaken(handle: string, exceptAccountId?: string): Promise<boolean> {

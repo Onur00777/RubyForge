@@ -47,6 +47,34 @@ export const MAP_INTRO: MentorLine = {
   text: "I am Ember. I roost on this path. Light a stage when it glows — I will speak when the iron needs a word. Tap me if you want the next nudge.",
 };
 
+export const ONBOARDING_LINES: MentorLine[] = [
+  {
+    id: "onboard-meet",
+    mood: "teach",
+    text: "I am Ember. You just cut a name in this mine. I roost on the Crimson Path — I will not leave the perch.",
+  },
+  {
+    id: "onboard-what",
+    mood: "teach",
+    text: "This is RubyForge. Thirty stations. A local Ruby runtime. You type real code; the suite is the only praise that matters here.",
+  },
+  {
+    id: "onboard-path",
+    mood: "idle",
+    text: "The winding road is the curriculum. A glowing orb is unlocked. Locked iron will not open because you asked nicely. Start at the first lit node.",
+  },
+  {
+    id: "onboard-work",
+    mood: "idle",
+    text: "Click a stage. Read the briefing. Fill the editor. Run. Green writes a real file under stages/ and pays gems. Gems are proof a suite went green — not gifts.",
+  },
+  {
+    id: "onboard-go",
+    mood: "cheer",
+    text: "Tap me later if the iron needs a word. The first station is waiting, smith. Light it when you are ready.",
+  },
+];
+
 export const MAP_RETURN: string[] = [
   "The winding road is still here. The lit orb is the one that wants you.",
   "Gems are not gifts. They are proof a suite went green. Walk the curve.",

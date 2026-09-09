@@ -39,22 +39,21 @@ export function EmberCompanion() {
   const pathname = usePathname();
   const { player, bazaarOpen } = useForge();
   const { line, open, muted, speak, dismiss, toggleMuted } = useMentor();
-  const ready = Boolean(player);
   const [tapHintVisible, setTapHintVisible] = useState(false);
 
   const dock: "left" | "right" = pathname.startsWith("/mission/") ? "right" : "left";
 
   useEffect(() => {
-    if (!ready) return;
+    if (!player?.onboardingComplete) return;
     if (pathname !== "/") return;
     const timer = window.setTimeout(() => {
-      speak({ type: "map", completed: player?.completedSteps.length ?? 0 });
+      speak({ type: "map", completed: player.completedSteps.length });
     }, 700);
     return () => window.clearTimeout(timer);
-  }, [pathname, ready, player?.completedSteps.length, speak]);
+  }, [pathname, player?.onboardingComplete, player?.completedSteps.length, speak]);
 
   useEffect(() => {
-    if (!ready) return;
+    if (!player?.onboardingComplete) return;
     const match = pathname.match(/^\/mission\/(\d+)/);
     if (!match) return;
     const stageId = Number(match[1]);
@@ -63,7 +62,7 @@ export function EmberCompanion() {
       speak({ type: "stage", stageId });
     }, 850);
     return () => window.clearTimeout(timer);
-  }, [pathname, ready, speak]);
+  }, [pathname, player?.onboardingComplete, speak]);
 
   useEffect(() => {
     if (!bazaarOpen) return;
@@ -72,11 +71,11 @@ export function EmberCompanion() {
   }, [bazaarOpen, speak]);
 
   useEffect(() => {
-    if (!ready || typeof window === "undefined") return;
+    if (!player?.onboardingComplete || typeof window === "undefined") return;
     if (localStorage.getItem(TAP_HINT_KEY)) return;
     const showTimer = window.setTimeout(() => setTapHintVisible(true), 2600);
     return () => window.clearTimeout(showTimer);
-  }, [ready]);
+  }, [player?.onboardingComplete]);
 
   useEffect(() => {
     if (!tapHintVisible) return;
@@ -104,7 +103,9 @@ export function EmberCompanion() {
 
   const { shown, done } = useTypewriter(open && line ? line.text : "");
 
-  if (!ready) return null;
+  if (!player) return null;
+  if (!player.onboardingComplete) return null;
+  if (pathname.startsWith("/admin")) return null;
 
   const sideClass = dock === "left" ? "left-4 sm:left-5" : "right-4 sm:right-5";
   const flexClass = dock === "left" ? "flex-row" : "flex-row-reverse";

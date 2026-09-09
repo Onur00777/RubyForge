@@ -1,4 +1,4 @@
-import type { MarketItem, PlayerState, RunResponse, SystemStatus } from "./types";
+import type { AdminSmithRow, MarketItem, PlayerState, RunResponse, SystemStatus } from "./types";
 import type { OracleReport } from "./oracle";
 
 async function parse<T>(response: Response): Promise<T> {
@@ -72,6 +72,12 @@ export async function buyItem(
     body: JSON.stringify({ item, stepId, ...extra }),
   });
   return parse(response);
+}
+
+export async function fetchAdminRoster(): Promise<AdminSmithRow[]> {
+  const response = await fetch("/api/admin/users", { cache: "no-store" });
+  const data = await parse<{ users: AdminSmithRow[] }>(response);
+  return data.users;
 }
 
 export async function gitAction(

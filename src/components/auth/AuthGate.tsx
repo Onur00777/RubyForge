@@ -11,7 +11,7 @@ function AuthGateInner({ children }: { children: ReactNode }) {
   const { status } = useSession();
   const { player, loading, error, googleConfigured } = useForge();
 
-  if (status === "loading" || googleConfigured === null) {
+  if (status === "loading") {
     return <ForgeSplash label="Loading…" />;
   }
 

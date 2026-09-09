@@ -72,8 +72,13 @@ export function hasMetEmber(): boolean {
   return localStorage.getItem(MET_KEY) === "1";
 }
 
-function meet() {
+export function markEmberMet() {
+  if (typeof window === "undefined") return;
   localStorage.setItem(MET_KEY, "1");
+}
+
+function meet() {
+  markEmberMet();
 }
 
 export function diagnoseFail(result: RunResponse): string {

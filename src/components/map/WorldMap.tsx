@@ -15,7 +15,7 @@ import { WayEmbers } from "./WayEmbers";
 
 const RubyHero = dynamic(
   () => import("./RubyHero").then((mod) => ({ default: mod.RubyHero })),
-  { ssr: false, loading: () => <div className="h-[200px]" /> },
+  { ssr: false, loading: () => <div className="h-[220px]" /> },
 );
 
 export function WorldMap() {
@@ -60,7 +60,7 @@ export function WorldMap() {
           30 short Ruby stages. Click one, type in the editor, and keep a real file on your computer.
         </p>
         {error && <p className="mt-3 text-sm text-neon">{error}</p>}
-        {loading && <p className="mt-3 font-mono text-xs tracking-widest text-muted">LINKING THE FORGE</p>}
+        {loading && <p className="mt-3 font-mono text-xs tracking-widest text-muted">Loading…</p>}
       </section>
 
       <div className="relative z-[5] mx-auto mt-6 w-[min(840px,100%)] px-2">

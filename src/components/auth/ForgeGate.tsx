@@ -1,12 +1,11 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { GoogleMark } from "./GoogleMark";
-import { ForgeSplash } from "./ForgeSplash";
 import { HandleForm } from "./HandleForm";
+import { HeroRuby, WelcomeMine } from "./WelcomeMine";
 
 const OAUTH_ERRORS: Record<string, string> = {
   Configuration:
@@ -20,19 +19,19 @@ const OAUTH_ERRORS: Record<string, string> = {
 };
 
 export function ForgeGate({ googleConfigured }: { googleConfigured: boolean }) {
-  return (
-    <Suspense fallback={<ForgeSplash label="Loading…" />}>
-      <ForgeGateInner googleConfigured={googleConfigured} />
-    </Suspense>
-  );
+  return <ForgeGateInner googleConfigured={googleConfigured} />;
 }
 
 function ForgeGateInner({ googleConfigured }: { googleConfigured: boolean }) {
-  const params = useSearchParams();
-  const oauthError = params.get("error");
+  const [oauthError, setOauthError] = useState<string | null>(null);
   const [busy, setBusy] = useState<"create" | "return" | "google-create" | "google-return" | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
   const [returnError, setReturnError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const error = new URLSearchParams(window.location.search).get("error");
+    if (error) setOauthError(error);
+  }, []);
 
   const enterLocal = async (mode: "create" | "return", handle: string, passphrase: string) => {
     if (busy) return;
@@ -50,7 +49,7 @@ function ForgeGateInner({ googleConfigured }: { googleConfigured: boolean }) {
       const message =
         mode === "create"
           ? "That username is taken, or the password is too short."
-          : "Wrong username or password.";
+          : "No account with that username on this computer. Use Sign up on the left — accounts are not copied from GitHub.";
       if (mode === "create") setCreateError(message);
       else setReturnError(message);
       setBusy(null);
@@ -68,11 +67,14 @@ function ForgeGateInner({ googleConfigured }: { googleConfigured: boolean }) {
   const message = oauthError ? (OAUTH_ERRORS[oauthError] ?? OAUTH_ERRORS.Default) : null;
 
   return (
-    <div className="relative z-10 mx-auto flex min-h-dvh w-[min(920px,100%)] flex-col px-4 py-10">
-      <div className="my-auto">
+    <div className="relative isolate min-h-dvh overflow-hidden">
+      <WelcomeMine />
+      <div className="relative z-10 mx-auto flex min-h-dvh w-[min(920px,100%)] flex-col px-4 py-10">
+        <div className="my-auto">
         <div className="mb-10 text-center">
-          <p className="font-mono text-[11px] tracking-[0.42em] text-neon">RUBYFORGE</p>
-          <h1 className="font-display mt-3 text-5xl font-bold tracking-tight sm:text-6xl">Welcome</h1>
+          <HeroRuby size={120} gid="gate-hero" />
+          <p className="font-mono mt-1 text-[11px] tracking-[0.42em] text-neon">RUBYFORGE</p>
+          <h1 className="font-display jewel-sheen mt-3 text-5xl font-bold tracking-tight sm:text-6xl">Welcome</h1>
           <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted">
             Create an account to start from lesson 1, or log in to continue where you left off.
           </p>
@@ -124,7 +126,8 @@ function ForgeGateInner({ googleConfigured }: { googleConfigured: boolean }) {
             <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-muted">Returning</p>
             <h2 className="font-display mt-2 text-2xl tracking-tight">Log in</h2>
             <p className="mt-2 mb-5 text-sm leading-relaxed text-muted">
-              Use your username and password to open your saved progress.
+              Open a username that already exists on this computer. Accounts stay on this Mac —
+              they are not synced from GitHub.
             </p>
             <HandleForm
               kind="return"
@@ -146,6 +149,7 @@ function ForgeGateInner({ googleConfigured }: { googleConfigured: boolean }) {
               </button>
             )}
           </motion.section>
+        </div>
         </div>
       </div>
     </div>

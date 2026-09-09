@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bird, Flame, Gem, Hammer, LogOut, Sparkles, Sun, Swords } from "lucide-react";
+import { Bird, Flame, Gem, Hammer, LogOut, Shield, Sparkles, Sun, Swords } from "lucide-react";
 import { saveHandle } from "@/lib/api";
 import { COSMETIC_BY_ID } from "@/lib/cosmetics";
 import { rankTitle } from "@/lib/economy";
@@ -176,6 +177,15 @@ export function ForgeIdentity({
                     >
                       Change username
                     </button>
+                    {player.isAdmin && (
+                      <Link
+                        href="/admin"
+                        className="ghost-btn flex items-center gap-2 rounded-full px-3 py-2 text-left text-xs"
+                      >
+                        <Shield className="h-3.5 w-3.5 text-neon" />
+                        Forge desk
+                      </Link>
+                    )}
                     <button
                       type="button"
                       onClick={() => void signOut({ callbackUrl: "/" })}

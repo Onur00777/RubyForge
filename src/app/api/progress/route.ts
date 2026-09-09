@@ -26,6 +26,7 @@ export async function POST(request: Request) {
       current.currentStepId = body.currentStepId ?? current.currentStepId;
       current.drafts = body.drafts ? { ...current.drafts, ...body.drafts } : current.drafts;
       current.remoteUrl = body.remoteUrl ?? current.remoteUrl;
+      if (body.onboardingComplete === true) current.onboardingComplete = true;
       return current;
     });
     return NextResponse.json({ player });

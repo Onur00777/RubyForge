@@ -256,10 +256,10 @@ body {
 
 .way-overworld {
   background:
-    radial-gradient(ellipse 90% 42% at 50% -8%, rgba(96, 15, 33, 0.42), transparent 58%),
-    radial-gradient(ellipse 50% 30% at 12% 18%, rgba(28, 4, 9, 0.55), transparent 50%),
-    radial-gradient(ellipse 50% 30% at 88% 28%, rgba(28, 4, 9, 0.4), transparent 50%),
-    #07040a;
+    radial-gradient(ellipse 90% 42% at 50% -8%, rgba(96, 15, 33, 0.22), transparent 58%),
+    radial-gradient(ellipse 50% 30% at 12% 18%, rgba(28, 4, 9, 0.32), transparent 50%),
+    radial-gradient(ellipse 50% 30% at 88% 28%, rgba(28, 4, 9, 0.24), transparent 50%),
+    #08050b;
 }
 
 .way-scene {
@@ -308,18 +308,13 @@ body {
 }
 
 .way-raven {
-  animation: way-raven-fly 15s linear infinite;
+  animation: way-raven-fly 28s linear infinite;
   will-change: transform;
 }
 
 .way-raven-b {
-  animation-duration: 19s;
-  animation-delay: -6s;
-}
-
-.way-raven-c {
-  animation-duration: 17s;
-  animation-delay: -11s;
+  animation-duration: 36s;
+  animation-delay: -10s;
 }
 
 @keyframes way-raven-fly {
@@ -355,11 +350,11 @@ body {
 
 @keyframes way-heat {
   0% {
-    transform: translate3d(-50%, -50%, 0) scale(0.72);
-    opacity: 0.5;
+    transform: translate3d(-50%, -50%, 0) scale(0.82);
+    opacity: 0.28;
   }
   100% {
-    transform: translate3d(-50%, -50%, 0) scale(1.7);
+    transform: translate3d(-50%, -50%, 0) scale(1.35);
     opacity: 0;
   }
 }
@@ -412,6 +407,140 @@ body {
   }
 }
 
+.gate-shaft {
+  background: radial-gradient(ellipse 70% 90% at 50% 0%, rgba(255, 30, 86, 0.16), transparent 72%);
+}
+
+.gate-hero-glow {
+  background: radial-gradient(circle, rgba(255, 30, 86, 0.55), rgba(255, 30, 86, 0.08) 55%, transparent 70%);
+  filter: blur(10px);
+  animation: gate-pulse 3.6s ease-in-out infinite;
+}
+
+.gate-float {
+  animation: gate-float 6.4s ease-in-out infinite;
+}
+
+.gate-twinkle {
+  animation: gate-twinkle 3s ease-in-out infinite;
+}
+
+.gate-code {
+  animation: gate-code 18s ease-in-out infinite;
+}
+
+.gate-vein {
+  animation: gate-vein 4.8s ease-in-out infinite;
+}
+
+@keyframes gate-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0);
+  }
+}
+
+@keyframes gate-twinkle {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(0.7);
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+
+@keyframes gate-code {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.12;
+  }
+  50% {
+    transform: translate3d(0, -18px, 0);
+    opacity: 0.38;
+  }
+}
+
+@keyframes gate-vein {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.gate-ember {
+  animation: gate-ember 10s linear infinite;
+}
+
+@keyframes gate-ember {
+  0% {
+    transform: translate3d(0, 20px, 0) scale(0.6);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate3d(18px, -72vh, 0) scale(0.2);
+    opacity: 0;
+  }
+}
+
+@keyframes gate-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+}
+
+.ember-onboard-veil {
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 28%, rgba(255, 30, 86, 0.18), transparent 62%),
+    rgba(4, 4, 7, 0.86);
+  backdrop-filter: blur(16px) saturate(1.2);
+}
+
+.ember-onboard-glow {
+  background: radial-gradient(circle, rgba(255, 30, 86, 0.55), rgba(255, 30, 86, 0.08) 55%, transparent 72%);
+  filter: blur(14px);
+  animation: gate-pulse 3.2s ease-in-out infinite;
+}
+
+.ember-onboard-mote {
+  bottom: -8px;
+  opacity: 0;
+  animation: ember-onboard-mote linear infinite;
+  box-shadow: 0 0 10px #ff1e56;
+}
+
+@keyframes ember-onboard-mote {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.6);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate3d(12px, -78vh, 0) scale(0.2);
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .way-mist-a,
   .way-mist-b,
@@ -420,7 +549,15 @@ body {
   .way-heat,
   .way-smoke,
   .way-smoke-c,
-  .way-firefly {
+  .way-firefly,
+  .gate-float,
+  .gate-twinkle,
+  .gate-code,
+  .gate-vein,
+  .gate-hero-glow,
+  .gate-ember,
+  .ember-onboard-glow,
+  .ember-onboard-mote {
     animation: none;
   }
 }

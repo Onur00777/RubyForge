@@ -11,8 +11,8 @@ function GemMesh() {
 
   useFrame((_, delta) => {
     if (outer.current) {
-      outer.current.rotation.y += delta * 0.32;
-      outer.current.rotation.x = 0.28 + Math.sin(performance.now() * 0.00045) * 0.12;
+      outer.current.rotation.y += delta * 0.14;
+      outer.current.rotation.x = 0.28 + Math.sin(performance.now() * 0.00028) * 0.06;
     }
     if (inner.current) {
       inner.current.rotation.y -= delta * 0.18;

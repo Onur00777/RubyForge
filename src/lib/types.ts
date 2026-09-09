@@ -57,7 +57,36 @@ export interface PlayerState {
   picture: string | null;
   handle: string | null;
   passHash?: string | null;
+  onboardingComplete: boolean;
+  isAdmin?: boolean;
 }
+
+export type PasswordCredential = {
+  stored: boolean;
+  algorithm: "scrypt" | null;
+  fingerprint: string | null;
+};
+
+export type AdminSmithRow = {
+  accountId: string;
+  handle: string | null;
+  email: string | null;
+  authKind: "local" | "google" | "local+google";
+  password: PasswordCredential;
+  currentStepId: number;
+  stageTitle: string;
+  phase: number | null;
+  completedCount: number;
+  totalStages: number;
+  gems: number;
+  xp: number;
+  gitPushTokens: number;
+  streak: number;
+  createdAt: string;
+  lastCompletedAt: string | null;
+  onboardingComplete: boolean;
+  isAdmin: boolean;
+};
 
 export interface SystemStatus {
   ruby: { ok: boolean; version: string; error?: string };

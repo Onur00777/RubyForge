@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 /**
@@ -16,7 +16,7 @@ import { AnimatePresence, motion } from "framer-motion";
  *   success  — big happy triumph: a suite went green.
  *   warning  — worried head-tilt; a run failed, Ember flags it gently.
  */
-export type EmberVisualState = "idle" | "speaking" | "success" | "warning";
+export type EmberVisualState = "idle" | "speaking" | "success" | "warning" | "arriving";
 
 const SPRING = { type: "spring" as const, stiffness: 260, damping: 22 };
 
@@ -25,6 +25,7 @@ const HEAD_POSE: Record<EmberVisualState, { rotate: number[] | number; y: number
   speaking: { rotate: 5, y: -1 },
   success: { rotate: [-4, 4, -4], y: -2 },
   warning: { rotate: -6, y: 1 },
+  arriving: { rotate: [-8, 10, -6, 8, 0], y: [0, -10, -3, -12, -2] },
 };
 
 const HEAD_TRANSITION: Record<EmberVisualState, Record<string, unknown>> = {
@@ -32,6 +33,7 @@ const HEAD_TRANSITION: Record<EmberVisualState, Record<string, unknown>> = {
   speaking: SPRING,
   success: { duration: 0.5, repeat: 2, ease: "easeInOut" },
   warning: SPRING,
+  arriving: { duration: 0.42, repeat: Infinity, ease: "easeInOut" },
 };
 
 // Fixed, hand-placed drifting ember-mote presets — deterministic so the
@@ -52,6 +54,8 @@ interface EmberRavenProps {
 }
 
 export function EmberRaven({ state, pulseId, size = 92, className }: EmberRavenProps) {
+  const rawId = useId();
+  const uid = `e${rawId.replace(/[^a-zA-Z0-9]/g, "")}`;
   const [trackedPulse, setTrackedPulse] = useState(pulseId);
   const [burst, setBurst] = useState<{ id: string; kind: "success" | "warning" } | null>(null);
   const [blink, setBlink] = useState(false);
@@ -81,7 +85,11 @@ export function EmberRaven({ state, pulseId, size = 92, className }: EmberRavenP
 
   const happy = burst?.kind === "success";
   const worried = state === "warning";
-  const eyeScaleY = happy ? 0.05 : blink ? 0.08 : worried ? 0.85 : state === "speaking" ? 1.08 : 1;
+  const flying = state === "arriving";
+  const eyeScaleY = happy ? 0.05 : blink ? 0.08 : worried ? 0.85 : state === "speaking" || flying ? 1.08 : 1;
+  const flap = flying
+    ? { duration: 0.28, repeat: Infinity, ease: "easeInOut" as const }
+    : SPRING;
 
   return (
     <div
@@ -128,36 +136,40 @@ export function EmberRaven({ state, pulseId, size = 92, className }: EmberRavenP
             ? { x: [0, -3, 3, -2, 2, 0], y: 0 }
             : burst?.kind === "success"
               ? { y: [0, -10, -1], x: 0 }
-              : { x: 0, y: 0 }
+              : flying
+                ? { y: [0, -14, -4, -12, 0], x: [0, 4, -3, 2, 0] }
+                : { x: 0, y: 0 }
         }
         transition={
           burst
             ? { duration: burst.kind === "warning" ? 0.42 : 0.62, ease: "easeOut" }
-            : SPRING
+            : flying
+              ? { duration: 0.55, repeat: Infinity, ease: "easeInOut" }
+              : SPRING
         }
       >
         <svg viewBox="0 0 128 128" width="100%" height="100%" aria-hidden focusable="false">
           <defs>
-            <radialGradient id="ember-aura" cx="50%" cy="46%" r="55%">
+            <radialGradient id={`${uid}-aura`} cx="50%" cy="46%" r="55%">
               <stop offset="0%" stopColor="#FF5A79" stopOpacity="0.45" />
               <stop offset="100%" stopColor="#FF5A79" stopOpacity="0" />
             </radialGradient>
-            <radialGradient id="ember-body-fill" cx="38%" cy="28%" r="80%">
+            <radialGradient id={`${uid}-body`} cx="38%" cy="28%" r="80%">
               <stop offset="0%" stopColor="#4a3040" />
               <stop offset="60%" stopColor="#2e1e2a" />
               <stop offset="100%" stopColor="#1c1220" />
             </radialGradient>
-            <radialGradient id="ember-head-fill" cx="36%" cy="30%" r="75%">
+            <radialGradient id={`${uid}-head`} cx="36%" cy="30%" r="75%">
               <stop offset="0%" stopColor="#523446" />
               <stop offset="60%" stopColor="#33212e" />
               <stop offset="100%" stopColor="#201620" />
             </radialGradient>
-            <radialGradient id="ember-iris" cx="38%" cy="34%" r="70%">
+            <radialGradient id={`${uid}-iris`} cx="38%" cy="34%" r="70%">
               <stop offset="0%" stopColor="#FFC2CE" />
               <stop offset="45%" stopColor="#FF5A79" />
               <stop offset="100%" stopColor="#B21E44" />
             </radialGradient>
-            <linearGradient id="ember-beak" x1="0%" y1="0%" x2="0%" y2="100%">
+            <linearGradient id={`${uid}-beak`} x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stopColor="#ffcf8f" />
               <stop offset="100%" stopColor="#f5a24a" />
             </linearGradient>
@@ -168,7 +180,7 @@ export function EmberRaven({ state, pulseId, size = 92, className }: EmberRavenP
             cx={64}
             cy={62}
             r={50}
-            fill="url(#ember-aura)"
+            fill={`url(#${uid}-aura)`}
             style={{ mixBlendMode: "screen" }}
             animate={{ opacity: state === "idle" ? [0.3, 0.5, 0.3] : [0.45, 0.7, 0.45] }}
             transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
@@ -177,33 +189,33 @@ export function EmberRaven({ state, pulseId, size = 92, className }: EmberRavenP
           {/* little round wings */}
           <motion.path
             d="M34,86 C18,88 12,104 22,116 C30,122 40,114 38,98 C37,92 36,88 34,86 Z"
-            fill="url(#ember-body-fill)"
+            fill={`url(#${uid}-body)`}
             stroke="rgba(255,90,121,0.35)"
             strokeWidth={1}
             style={{ transformOrigin: "34px 96px", transformBox: "fill-box" }}
             animate={{
-              rotate: state === "speaking" ? -8 : happy ? -26 : 0,
-              scale: happy ? 1.1 : 1,
+              rotate: flying ? [-10, -58, 8, -58, -10] : state === "speaking" ? -8 : happy ? -26 : 0,
+              scale: flying || happy ? 1.12 : 1,
             }}
-            transition={SPRING}
+            transition={flap}
           />
           <motion.path
             d="M94,86 C110,88 116,104 106,116 C98,122 88,114 90,98 C91,92 92,88 94,86 Z"
-            fill="url(#ember-body-fill)"
+            fill={`url(#${uid}-body)`}
             stroke="rgba(255,90,121,0.35)"
             strokeWidth={1}
             style={{ transformOrigin: "94px 96px", transformBox: "fill-box" }}
             animate={{
-              rotate: state === "speaking" ? 8 : happy ? 26 : 0,
-              scale: happy ? 1.1 : 1,
+              rotate: flying ? [10, 58, -8, 58, 10] : state === "speaking" ? 8 : happy ? 26 : 0,
+              scale: flying || happy ? 1.12 : 1,
             }}
-            transition={SPRING}
+            transition={flap}
           />
 
           {/* round little body */}
           <path
             d="M40,90 C40,112 50,124 64,124 C78,124 88,112 88,90 C88,74 78,64 64,64 C50,64 40,74 40,90 Z"
-            fill="url(#ember-body-fill)"
+            fill={`url(#${uid}-body)`}
             stroke="rgba(255,90,121,0.3)"
             strokeWidth={1}
           />
@@ -216,12 +228,12 @@ export function EmberRaven({ state, pulseId, size = 92, className }: EmberRavenP
             animate={HEAD_POSE[state]}
             transition={HEAD_TRANSITION[state]}
           >
-            <circle cx={64} cy={54} r={36} fill="url(#ember-head-fill)" stroke="rgba(255,255,255,0.08)" strokeWidth={1} />
+            <circle cx={64} cy={54} r={36} fill={`url(#${uid}-head)`} stroke="rgba(255,255,255,0.08)" strokeWidth={1} />
 
             {/* single cute feather curl, not horns */}
             <path
               d="M58,20 C52,10 64,4 68,12 C71,18 63,22 58,20 Z"
-              fill="url(#ember-head-fill)"
+              fill={`url(#${uid}-head)`}
               stroke="rgba(255,90,121,0.35)"
               strokeWidth={0.75}
             />
@@ -254,7 +266,7 @@ export function EmberRaven({ state, pulseId, size = 92, className }: EmberRavenP
             <g>
               <motion.g animate={{ scaleY: eyeScaleY }} style={{ transformOrigin: "46px 50px", transformBox: "fill-box" }} transition={{ duration: 0.14 }}>
                 <circle cx={46} cy={50} r={13} fill="#fff3f2" />
-                <circle cx={47.5} cy={51} r={8} fill="url(#ember-iris)" />
+                <circle cx={47.5} cy={51} r={8} fill={`url(#${uid}-iris)`} />
                 <circle cx={44.5} cy={47.5} r={2.6} fill="#ffffff" />
               </motion.g>
               {/* happy closed-eye arc */}
@@ -273,7 +285,7 @@ export function EmberRaven({ state, pulseId, size = 92, className }: EmberRavenP
             <g>
               <motion.g animate={{ scaleY: eyeScaleY }} style={{ transformOrigin: "82px 50px", transformBox: "fill-box" }} transition={{ duration: 0.14 }}>
                 <circle cx={82} cy={50} r={13} fill="#fff3f2" />
-                <circle cx={80.5} cy={51} r={8} fill="url(#ember-iris)" />
+                <circle cx={80.5} cy={51} r={8} fill={`url(#${uid}-iris)`} />
                 <circle cx={83.5} cy={47.5} r={2.6} fill="#ffffff" />
               </motion.g>
               <motion.path
@@ -290,7 +302,7 @@ export function EmberRaven({ state, pulseId, size = 92, className }: EmberRavenP
             {/* tiny round beak */}
             <path
               d="M58,63 Q64,59 70,63 Q69,71 64,75 Q59,71 58,63 Z"
-              fill="url(#ember-beak)"
+              fill={`url(#${uid}-beak)`}
               stroke="#c97a2e"
               strokeWidth={0.6}
             />

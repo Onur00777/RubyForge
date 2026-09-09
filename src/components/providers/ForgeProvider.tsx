@@ -18,7 +18,7 @@ interface ForgeContextValue {
   system: (SystemStatus & { player: PlayerState }) | null;
   loading: boolean;
   error: string | null;
-  googleConfigured: boolean | null;
+  googleConfigured: boolean;
   bazaarOpen: boolean;
   setBazaarOpen: (open: boolean) => void;
   setPlayer: (player: PlayerState) => void;
@@ -34,7 +34,7 @@ export function ForgeProvider({ children }: { children: ReactNode }) {
   const [system, setSystem] = useState<(SystemStatus & { player: PlayerState }) | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [googleConfigured, setGoogleConfigured] = useState<boolean | null>(null);
+  const [googleConfigured, setGoogleConfigured] = useState(false);
   const [bazaarOpen, setBazaarOpen] = useState(false);
 
   useEffect(() => {

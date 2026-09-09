@@ -5,6 +5,7 @@ import { SessionRoot } from "@/components/providers/SessionRoot";
 import { ForgeProvider } from "@/components/providers/ForgeProvider";
 import { MentorProvider } from "@/components/mentor/MentorProvider";
 import { EmberCompanion } from "@/components/companion/EmberCompanion";
+import { EmberOnboarding } from "@/components/companion/EmberOnboarding";
 import { CrimsonBazaar } from "@/components/bazaar/CrimsonBazaar";
 import { AuthGate } from "@/components/auth/AuthGate";
 import { Atmosphere } from "@/components/fx/Atmosphere";
@@ -41,8 +42,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       className={`${space.variable} ${inter.variable} ${jetbrains.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full overflow-x-hidden">
+      <body className="min-h-full overflow-x-hidden" suppressHydrationWarning>
         <SessionRoot session={session}>
           <ForgeProvider>
             <MentorProvider>
@@ -52,6 +54,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
                   {children}
                   <CrimsonBazaar />
                   <EmberCompanion />
+                  <EmberOnboarding />
                 </AuthGate>
               </MotionRoot>
             </MentorProvider>
