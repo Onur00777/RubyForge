@@ -1,6 +1,6 @@
 # RubyForge: The Crimson Path
 
-A local Ruby learning game: overworld map, mission arena, and a real `ruby` CLI behind the editor.
+A local Ruby learning game: overworld map, mission area, and a real `ruby` CLI behind the editor. Teaches you Ruby...
 
 ## Run
 
