@@ -23,3 +23,13 @@ Google is optional. Copy `.env.example` to `.env.local` if you want it.
 - `/mission/[id]` — Coding Arena
 - Passing tests writes `ruby_journey/stages/stage_XX_title.rb` and awards gems
 - Milestones (every 5 stages) create a local git commit
+
+## Son notlar
+
+Crimson World artık daha sakin ve kaydırırken daha sağlam duruyor.
+
+- Ateşböcekleri seyrek, küçük ve yolun / yazıların **arkasında**. Göz yormuyor; gece kasabası hissi duruyor.
+- Uzun harita tek parça SVG olarak dilim dilim çizilmiyor. Kasaba bir kez bitmap’e işleniyor; aşağı-yukarı kaydırınca yol “yükleniyor” gibi belirmiyor.
+- Yolda büyük tavern, küçük kulübe ve uzakta silüet evler var. Virajlarda küme, düzlüklerde nefes: okunur bir kasaba, tıka basa şehir değil.
+
+Oyun hâlâ aynı: 30 kısa Ruby stage, gerçek `ruby` CLI, gerçek dosya. Değişen şey, dünyanın **ferah ve hazır** durması.
